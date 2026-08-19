@@ -929,7 +929,7 @@ function gerarPDF(dadosParam) {
   // 3. Coberturas
   secao('3. COBERTURAS CONTRATADAS');
   if (d.coberturas?.length) {
-    const cols = [cw*0.40, cw*0.24, cw*0.18, cw*0.18];
+    const cols = [cw*0.32, cw*0.19, cw*0.16, cw*0.33]; // franquia mais larga pra caber o valor completo
     const headers = ['Cobertura','LMI / Indenização','Prêmio (R$)','Franquia'];
     doc.setFillColor(122,15,31);
     doc.rect(mg, y, cw, 6, 'F');
@@ -937,18 +937,23 @@ function gerarPDF(dadosParam) {
     let cx = mg;
     headers.forEach((h,i) => { doc.text(h, cx+2, y+4); cx += cols[i]; });
     y += 7;
+    const lineH = 3.3;
     d.coberturas.forEach((c,idx) => {
-      const rowH = 6;
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+      const valores = [c.nome, c.lmi, c.premio, c.franquia];
+      // Quebra cada célula em múltiplas linhas (não corta mais o texto)
+      const linhasPorCol = valores.map((v,i) => doc.splitTextToSize(String(v||'—'), cols[i]-4));
+      const maxLinhas = Math.max(1, ...linhasPorCol.map(l => l.length));
+      const rowH = Math.max(6, 3 + maxLinhas*lineH);
+
+      if (y + rowH > 275) { doc.addPage(); y = 18; } // evita cortar linha entre páginas
+
       doc.setFillColor(idx%2===0?255:248,idx%2===0?255:249,idx%2===0?255:250);
       doc.rect(mg, y, cw, rowH, 'F');
-      doc.setTextColor(30,30,30); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+      doc.setTextColor(30,30,30);
       cx = mg;
-      [c.nome,c.lmi,c.premio,c.franquia].forEach((v,i) => {
-        const maxW = cols[i]-4;
-        const fullTxt = String(v||'—');
-        // For franquia column (i===3), truncate long text
-        const txt = doc.splitTextToSize(fullTxt, maxW)[0];
-        doc.text(txt, cx+2, y+4);
+      linhasPorCol.forEach((linhas,i) => {
+        linhas.forEach((ln, li) => { doc.text(ln, cx+2, y+4+(li*lineH)); });
         cx += cols[i];
       });
       y += rowH;
