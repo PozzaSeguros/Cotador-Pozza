@@ -612,6 +612,18 @@ ZURICH (DEMONSTRATIVO DE CÁLCULO ZURICH AUTOMÓVEL):
 - Cobertura Especial para Vidros: linha principal na tabela de Coberturas. Os itens listados logo abaixo dela (Retrovisor Externo, Para-brisa, Vidro Traseiro, Farol Matrix, etc, cada um com seu valor em R$) são as franquias por peça — resuma no campo franquia no formato "Para-brisa R$ X / Retrovisores R$ Y / Faróis R$ Z / Lanternas R$ W" (só os principais, não precisa listar todos).
 - PAGAMENTO — ATENÇÃO, Zurich NÃO separa por cartão/débito/boleto como as outras seguradoras. Tem UMA ÚNICA tabela genérica de parcelamento com colunas "Parcelas | Valor de Entrada (R$) | Valor das Demais (R$) | Prêmio Total (R$)", com linhas no formato "01", "01 + 01", "01 + 02" etc (entrada + N parcelas adicionais = total de parcelas). Traduza assim: linha "01" = 1x (valor = Valor de Entrada dessa linha), linha "01 + 01" = 2x (valor = Valor de Entrada dessa linha), linha "01 + 0N" = (N+1)x. Coloque essa sequência de valores em parcelas_cartao, na ordem 1x,2x,3x... NÃO invente uma forma de pagamento específica (a Zurich não diz se é cartão, débito ou boleto — é só "parcelamento"). Deixe debito_conta=[], parcelas_boleto=[] e boleto_avista="—" — NÃO duplique o valor de 1x como se fosse um "boleto à vista" separado, pois essa informação não existe nesse PDF.
 
+MAPFRE (Cotação de Seguro MAPFRE Auto):
+- seguradora: "Mapfre Seguros"
+- premio_liquido: campo "Prêmio Líquido" na tabela "Prêmios" (fica após a tabela de Franquia(s))
+- iof: campo "IOF" na mesma tabela "Prêmios"
+- premio_total: campo "Prêmio Total"
+- validade: "Validade da Cotação"
+- vigencia: "Vigência: das 24 horas do dia X até as 24 horas do dia Y" — formate como "X até Y"
+- bonus: "Classe de Bônus"
+- COBERTURAS: a tabela "Coberturas" tem SOMENTE 3 colunas — Cobertura | Lim. Máx. Indenização | Prêmio. Essa tabela NÃO tem coluna de franquia.
+- FRANQUIA — fica em uma tabela SEPARADA logo abaixo, chamada "Franquia(s)", com colunas "Item" e "Valor - R$". Para a cobertura "Casco" (na tabela de Coberturas), procure a linha correspondente nessa tabela de Franquia(s) — geralmente no formato "Casco: Reduzida XX%" — e monte o campo franquia combinando o texto com o valor: "Reduzida XX% - R$ <valor>" (ex: "Reduzida 25% - R$ 3.198,54"). Para a cobertura "Vidros - Top Plus" (se existir), resuma os principais itens de peças/vidros dessa mesma tabela de Franquia(s) (Para-brisa, Vidros Laterais, Traseiro/Vigia, Faróis, Lanternas, Retrovisores) no formato "Para-brisa R$ X / Vidros Laterais R$ Y / Traseiro R$ Z / Faróis R$ W / Lanternas R$ V". Para as demais coberturas (RCFA, Assistência, APP etc.), use franquia="—".
+- PAGAMENTO — a seção "Formas de Pagamento" tem 4 blocos lado a lado: "Boleto" | "Débito em Conta" | "Débito c/ 1° em Boleto" | "Cartão de Crédito", cada um com colunas "Parcelas / Valor da Parcela / Total". IGNORE completamente o bloco "Débito c/ 1° em Boleto" (não existe campo pra ele no JSON). Use a coluna "Valor da Parcela" de cada um dos outros 3 blocos: parcelas_cartao = bloco "Cartão de Crédito"; debito_conta = bloco "Débito em Conta"; parcelas_boleto = bloco "Boleto". ATENÇÃO: os valores do bloco Boleto são DIFERENTES dos valores do bloco Débito em Conta a partir da parcela que tem juros — são colunas distintas, NUNCA copie o mesmo array pros dois campos. boleto_avista = mesmo valor do 1x do bloco Boleto (a Mapfre não mostra desconto à vista separado).
+
 ═══════════════════════════════════════════
 REGRAS DE PARCELAMENTO (todas as seguradoras)
 ═══════════════════════════════════════════
