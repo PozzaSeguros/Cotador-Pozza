@@ -993,7 +993,9 @@ function gerarPDF(dadosParam) {
   doc.text(d.premio_total||'—', mg+cw-3, y+5.8, {align:'right'});
   y += 14;
 
-  // 5. Pagamento
+  // 5. Pagamento — sempre começa em página nova
+  doc.addPage();
+  y = 18;
   secao('5. FORMAS DE PAGAMENTO');
 
   function tabelaPgto(titulo, parcelas, destaque) {
