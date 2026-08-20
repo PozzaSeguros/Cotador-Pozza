@@ -864,7 +864,7 @@ function gerarPDF(dadosParam) {
   doc.rect(0,0,W,28,'F');
 
   // Logo
-  try { doc.addImage('data:image/png;base64,' + LOGO_B64, 'PNG', mg, 4.5, 50, 19.2); } catch(e){}
+  try { doc.addImage('data:image/png;base64,' + LOGO_B64, 'PNG', mg, 2.5, 60, 23); } catch(e){}
 
   // Texto header
   doc.setTextColor(255,255,255);
