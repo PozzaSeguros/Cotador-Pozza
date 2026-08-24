@@ -760,6 +760,35 @@ let dados = null;
       }
     }
 
+    // Regra da Pozza: independente do que a seguradora ofereça no PDF original,
+    // sempre limitar o número de parcelas exibidas ao cliente. Padrão geral:
+    // Cartão até 10x, Débito em conta até 6x, Carnê/Boleto até 7x.
+    // Exceções por seguradora ficam no objeto LIMITES_POR_SEGURADORA abaixo.
+    const LIMITE_PADRAO = { cartao: 10, debito: 6, carne: 7 };
+    const LIMITES_POR_SEGURADORA = [
+      { match: /mapfre/i, limites: { cartao: 10, debito: 6, carne: 2 } }
+      // Para adicionar outra exceção no futuro: { match: /nome da seguradora/i, limites: { cartao: X, debito: Y, carne: Z } }
+    ];
+    const seguradoraNome = dados.seguradora || '';
+    const excecao = LIMITES_POR_SEGURADORA.find(e => e.match.test(seguradoraNome));
+    const LIMITE_CARTAO = excecao ? excecao.limites.cartao : LIMITE_PADRAO.cartao;
+    const LIMITE_DEBITO = excecao ? excecao.limites.debito : LIMITE_PADRAO.debito;
+    const LIMITE_CARNE = excecao ? excecao.limites.carne : LIMITE_PADRAO.carne;
+    if (Array.isArray(dados.parcelas_cartao) && dados.parcelas_cartao.length > LIMITE_CARTAO) {
+      dados.parcelas_cartao = dados.parcelas_cartao.slice(0, LIMITE_CARTAO);
+    }
+    if (Array.isArray(dados.debito_conta) && dados.debito_conta.length > LIMITE_DEBITO) {
+      dados.debito_conta = dados.debito_conta.slice(0, LIMITE_DEBITO);
+    }
+    if (Array.isArray(dados.parcelas_boleto) && dados.parcelas_boleto.length > LIMITE_CARNE) {
+      dados.parcelas_boleto = dados.parcelas_boleto.slice(0, LIMITE_CARNE);
+    }
+    // Se o "sem juros até Nx" informado pela seguradora passar do nosso limite de cartão, trava no limite
+    const maxSemJuros = parseInt(String(dados.max_parcelas_sem_juros_cartao || '').replace(/\D/g,''), 10);
+    if (!isNaN(maxSemJuros) && maxSemJuros > LIMITE_CARTAO) {
+      dados.max_parcelas_sem_juros_cartao = String(LIMITE_CARTAO);
+    }
+
     setStep(2,'done');
   } catch(e) {
     setStep(2,'err');
