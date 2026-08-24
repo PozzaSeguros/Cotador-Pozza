@@ -623,7 +623,7 @@ MAPFRE (Cotação de Seguro MAPFRE Auto):
 - COBERTURAS: a tabela "Coberturas" tem SOMENTE 3 colunas — Cobertura | Lim. Máx. Indenização | Prêmio. Essa tabela NÃO tem coluna de franquia.
 - FRANQUIA — fica em uma tabela SEPARADA logo abaixo, chamada "Franquia(s)", com colunas "Item" e "Valor - R$". Para a cobertura "Casco" (na tabela de Coberturas), procure a linha correspondente nessa tabela de Franquia(s) — geralmente no formato "Casco: Reduzida XX%" — e monte o campo franquia combinando o texto com o valor: "Reduzida XX% - R$ <valor>" (ex: "Reduzida 25% - R$ 3.198,54"). Para a cobertura "Vidros - Top Plus" (se existir), resuma os principais itens de peças/vidros dessa mesma tabela de Franquia(s) (Para-brisa, Vidros Laterais, Traseiro/Vigia, Faróis, Lanternas, Retrovisores) no formato "Para-brisa R$ X / Vidros Laterais R$ Y / Traseiro R$ Z / Faróis R$ W / Lanternas R$ V". Para as demais coberturas (RCFA, Assistência, APP etc.), use franquia="—".
 - PAGAMENTO — a seção "Formas de Pagamento" tem 4 blocos lado a lado: "Boleto" | "Débito em Conta" | "Débito c/ 1° em Boleto" | "Cartão de Crédito", cada um com colunas "Parcelas / Valor da Parcela / Total". IGNORE completamente o bloco "Débito c/ 1° em Boleto" (não existe campo pra ele no JSON). Use a coluna "Valor da Parcela" de cada um dos outros 3 blocos: parcelas_cartao = bloco "Cartão de Crédito"; debito_conta = bloco "Débito em Conta"; parcelas_boleto = bloco "Boleto". ATENÇÃO: os valores do bloco Boleto são DIFERENTES dos valores do bloco Débito em Conta a partir da parcela que tem juros — são colunas distintas, NUNCA copie o mesmo array pros dois campos. boleto_avista = mesmo valor do 1x do bloco Boleto (a Mapfre não mostra desconto à vista separado).
-- ATENÇÃO REDOBRADA no bloco "Cartão de Crédito": é o bloco MAIS À DIREITA da tabela — não confunda com o bloco vizinho "Débito c/ 1° em Boleto" (que fica logo à esquerda dele e deve ser ignorado). Cada linha do bloco Cartão tem um rótulo próprio, tipo "1x Sem Juros", "2x Sem Juros" ... "Nx Com Juros". NÃO assuma um número fixo de parcelas sem juros — conte quantas linhas consecutivas a partir do 1x estão rotuladas "Sem Juros" nesse bloco especificamente, e use essa contagem em max_parcelas_sem_juros_cartao (pode ser até 12x, não pare em 5 ou 6 sem checar as linhas seguintes). AUTO-VERIFICAÇÃO OBRIGATÓRIA: para toda parcela marcada "Sem Juros", o valor da parcela DEVE ser igual a (premio_total ÷ número da parcela), dentro de poucos centavos de arredondamento — ex: se premio_total = R$ 4.669,87 e a linha é "6x Sem Juros", o valor tem que ser aproximadamente R$ 778,31 (4669,87÷6). Se o valor que você leu não bate com essa conta, você pegou o número errado (provavelmente de outra coluna) — releia a linha correta antes de responder. Os valores "Sem Juros" também devem ser estritamente decrescentes conforme aumenta o número de parcelas; se notar um valor maior que o da parcela anterior, isso é sinal de leitura errada — corrija antes de finalizar.
+- ATENÇÃO REDOBRADA no bloco "Cartão de Crédito": é o bloco MAIS À DIREITA da tabela — não confunda com o bloco vizinho "Débito c/ 1° em Boleto" (que fica logo à esquerda dele e deve ser ignorado). Cada linha do bloco Cartão tem um rótulo próprio, tipo "1x Sem Juros", "2x Sem Juros" ... "Nx Com Juros" (ou "Nx Sem Juros" mesmo em parcelas mais altas — a Mapfre às vezes libera sem juros até 10x ou mais, não assuma um limite fixo). Use o rótulo impresso em cada linha exatamente como está, mesmo que o valor não seja uma divisão exata do prêmio total — a Mapfre pode aplicar taxas administrativas mesmo em parcelamentos "sem juros de compra", então o valor real da linha É a fonte da verdade, não uma fórmula. SINAL DE ALERTA (não regra absoluta): se os valores da coluna não estiverem em ordem estritamente decrescente conforme aumenta o número de parcelas (ex: 7x maior que 6x), isso indica que você leu a coluna errada por engano — nesse caso, releia com cuidado redobrado qual coluna pertence de fato ao bloco "Cartão de Crédito" antes de responder.
 
 ═══════════════════════════════════════════
 REGRAS DE PARCELAMENTO (todas as seguradoras)
@@ -761,20 +761,20 @@ let dados = null;
       }
     }
 
-    // Correção de segurança para MAPFRE: o cartão de crédito costuma ser
-    // "sem juros" em todas as parcelas, com valor = prêmio total ÷ nº de parcelas.
-    // Se a IA leu a coluna errada, os valores ficam fora de ordem (algum valor
-    // maior que o da parcela anterior) — nesse caso, recalculamos pela divisão exata.
-    if ((dados.seguradora || '').toLowerCase().includes('mapfre') && Array.isArray(dados.parcelas_cartao) && dados.parcelas_cartao.length > 1) {
+    // Correção MAPFRE (confirmada com PDFs reais): o bloco "Cartão de Crédito" da
+    // Mapfre é sempre parcelamento sem juros = prêmio total ÷ nº de parcelas, mesmo
+    // em 10x, 11x, 12x. A IA às vezes confunde essa coluna com a vizinha "Débito em
+    // Conta" (que tem juros a partir da 7x) a partir de certo ponto da tabela — os
+    // primeiros valores saem certos e os últimos vêm da coluna errada. Por isso,
+    // sempre recalculamos o array inteiro por divisão exata, garantindo consistência.
+    if ((dados.seguradora || '').toLowerCase().includes('mapfre') && Array.isArray(dados.parcelas_cartao) && dados.parcelas_cartao.length > 0) {
       const parseMoeda = v => {
         if (v === null || v === undefined || v === '' || v === '—') return NaN;
         return parseFloat(String(v).replace('R$','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'));
       };
-      const numeros = dados.parcelas_cartao.map(parseMoeda);
-      const foraDeOrdem = numeros.some((v, i) => i > 0 && !isNaN(v) && !isNaN(numeros[i-1]) && v > numeros[i-1]);
       const totalNum = parseMoeda(dados.premio_total);
-      if (foraDeOrdem && !isNaN(totalNum) && totalNum > 0) {
-        console.log('MAPFRE: sequência de cartão fora de ordem detectada, recalculando por divisão exata do prêmio total');
+      if (!isNaN(totalNum) && totalNum > 0) {
+        console.log('MAPFRE: recalculando cartão de crédito por divisão exata do prêmio total (regra fixa)');
         dados.parcelas_cartao = dados.parcelas_cartao.map((_, i) => {
           const val = totalNum / (i + 1);
           return 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -787,7 +787,7 @@ let dados = null;
     // sempre limitar o número de parcelas exibidas ao cliente. Padrão geral:
     // Cartão até 10x, Débito em conta até 6x, Carnê/Boleto até 7x.
     // Exceções por seguradora ficam no objeto LIMITES_POR_SEGURADORA abaixo.
-    const LIMITE_PADRAO = { cartao: 10, debito: 6, carne: 7 };
+    const LIMITE_PADRAO = { cartao: 10, debito: 6, carne: 2 };
     const LIMITES_POR_SEGURADORA = [
       { match: /mapfre/i, limites: { cartao: 10, debito: 6, carne: 2 } }
       // Para adicionar outra exceção no futuro: { match: /nome da seguradora/i, limites: { cartao: X, debito: Y, carne: Z } }
@@ -895,9 +895,9 @@ function renderResult(d) {
       p.map((v,i) => `<div class="pgto-pill"><div class="pgto-pill-n">${i+1}x</div><div class="pgto-pill-v">${String(v!==null&&v!==undefined?v:'—').replace('R$ ','')}</div></div>`).join('') +
       `</div></div>`;
   }
-  pgto += pillRow('Cartão de crédito', d.parcelas_cartao);
-  pgto += pillRow('Débito em conta', d.debito_conta);
-  pgto += pillRow('Boleto / carnê', d.parcelas_boleto);
+  pgto += pillRow('Cartão de crédito — sem juros até ' + (d.max_parcelas_sem_juros_cartao||'10') + 'x', d.parcelas_cartao);
+  pgto += pillRow('Débito em conta — sem juros até ' + (d.debito_conta||[]).length + 'x', d.debito_conta);
+  pgto += pillRow('Boleto / carnê — sem juros até ' + (d.parcelas_boleto||[]).length + 'x', d.parcelas_boleto);
   if (d.boleto_avista) pgto += `<div class="boleto-bar"><span style="font-size:13px;font-weight:600;color:#7A0F1F">Boleto / PIX à vista</span><span style="font-size:16px;font-weight:700;color:#C41E3A">${d.boleto_avista}</span></div>`;
   document.getElementById('pgtoPreview').innerHTML = pgto;
 }
@@ -1089,8 +1089,8 @@ function gerarPDF(dadosParam) {
   }
 
   tabelaPgto('CARTÃO DE CRÉDITO — sem juros até ' + (d.max_parcelas_sem_juros_cartao||'10') + 'x', d.parcelas_cartao, true);
-  tabelaPgto('DÉBITO EM CONTA', d.debito_conta, false);
-  tabelaPgto('BOLETO / CARNÊ', d.parcelas_boleto, false);
+  tabelaPgto('DÉBITO EM CONTA — sem juros até ' + (d.debito_conta||[]).length + 'x', d.debito_conta, false);
+  tabelaPgto('BOLETO / CARNÊ — sem juros até ' + (d.parcelas_boleto||[]).length + 'x', d.parcelas_boleto, false);
 
   if (d.boleto_avista) {
     doc.setFillColor(122,15,31);
