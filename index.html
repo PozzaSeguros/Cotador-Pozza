@@ -281,11 +281,11 @@ REGRAS GERAIS (valem para qualquer seguradora):
 5. Coberturas adicionais tipo "Assistência 24h", "Carro Reserva", "Extensão de Reboque", "Assistência Residencial/Casa", "Vidros Top" etc. NÃO entram na lista "coberturas" — elas devem aparecer resumidas dentro de "observacoes", sem duplicar informação.
 6. Franquias detalhadas de vidros / faróis / lanternas / retrovisores (a seguradora costuma listar muitas): resuma em no máximo 2 itens de observação (um para vidros, outro para faróis+lanternas+retrovisores), citando os valores extremos e mencionando "franquia diferenciada" quando houver Xenon/LED/Matrix com valor maior.
 7. Gere exatamente 4 observações, nesta ordem temática, sempre que a informação existir no documento:
-   (1) carro reserva / procedimento em caso de sinistro — mencione a palavra "carro reserva" explicitamente e cite o número de dias em destaque com <span class="hl">...</span>;
-   (2) assistência 24h / guincho — mencione a palavra "guincho" ou "assistência" explicitamente e cite km ou "ilimitado"/"sem limite" em destaque com <span class="hl">...</span>;
+   (1) carro reserva / procedimento em caso de sinistro — mencione a palavra "carro reserva" explicitamente e cite o número de dias em destaque, envolvendo o trecho com **dois asteriscos** (NUNCA use aspas duplas, HTML ou tags dentro do texto);
+   (2) assistência 24h / guincho — mencione a palavra "guincho" ou "assistência" explicitamente e cite km ou "ilimitado"/"sem limite" em destaque, envolvendo o trecho com **dois asteriscos**;
    (3) franquia de vidros;
    (4) franquia de faróis, lanternas e retrovisores.
-   Pode usar <span class="hl">texto</span> para destacar valores importantes. NÃO inclua ícones ou SVG no texto — isso é feito automaticamente pelo sistema com base nas palavras "carro reserva" e "guincho"/"assistência".
+   Para destacar qualquer valor importante, envolva o trecho com **dois asteriscos** (ex: "carro reserva por **15 dias**"). NUNCA use HTML, tags ou aspas duplas dentro dos textos de observação — isso quebra o JSON. NÃO inclua ícones ou SVG no texto — isso é feito automaticamente pelo sistema.
 8. Datas sempre no formato DD/MM/AAAA.
 9. Marca do veículo: se não vier explícita mas o modelo for de fabricante conhecido (ex: "206" é Peugeot, "COMMANDER" é Jeep, "TRACKER" é Chevrolet, "SANDERO" é Renault, "COMPASS" é Jeep), preencha a marca corretamente.
 10. "veiculo" deve estar em maiúsculas, sem repetir o ano.
@@ -464,7 +464,9 @@ function preencherPreview(d) {
     const li = document.createElement('li');
     li.contentEditable = 'true';
     const icone = iconeParaObs(o);
-    li.innerHTML = (icone ? icone : '') + '<span>' + o + '</span>';
+    // Converte **texto** em <span class="hl">texto</span> (evita aspas duplas cruas vindas da IA)
+    const textoFormatado = String(o).replace(/\*\*(.+?)\*\*/g, '<span class="hl">$1</span>');
+    li.innerHTML = (icone ? icone : '') + '<span>' + textoFormatado + '</span>';
     listObs.appendChild(li);
   });
 }
