@@ -293,6 +293,8 @@ REGRAS GERAIS (valem para qualquer seguradora):
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
 __PAYMENT_RULE__
 
+AVISO CRÍTICO SOBRE "condicoes_pagamento": o array deve conter EXATAMENTE o número de linhas indicado na regra acima (incluindo a linha de Valor à Vista) — nunca mais, nunca menos. NÃO copie a tabela de parcelamento inteira do documento (que pode ter 10, 11 ou 12 opções). Ignore completamente todas as parcelas que não foram especificadas na regra. A linha de "Valor à Vista" (a primeira, com destaque:true) NUNCA deve receber "sem_juros":true — esse campo é só para as parcelas.
+
 Devolva SOMENTE o JSON, nada mais.`;
 
 const PAYMENT_RULES = {
