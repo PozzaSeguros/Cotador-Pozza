@@ -21,204 +21,97 @@
     color: var(--texto);
     height: 100%;
   }
-  .app {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    min-height: 100vh;
-  }
-  .panel {
-    background: #fff;
-    padding: 22px;
-    border-right: 1px solid #ddd;
-    overflow-y: auto;
-  }
-  .panel h1 {
-    font-size: 17px;
-    color: var(--bordo);
-    margin: 0 0 4px 0;
-  }
-  .panel .sub {
-    font-size: 12px;
-    color: #777;
-    margin-bottom: 18px;
-    line-height: 1.5;
-  }
+  .app { display: grid; grid-template-columns: 380px 1fr; min-height: 100vh; }
+  .panel { background: #fff; padding: 24px; border-right: 1px solid #ddd; overflow-y: auto; }
+  .panel h1 { font-size: 18px; color: var(--bordo); margin: 0 0 4px 0; }
+  .panel .sub { font-size: 12px; color: #777; margin-bottom: 20px; line-height: 1.5; }
   .field { margin-bottom: 16px; }
-  .field label {
-    display: block;
-    font-size: 12.5px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #444;
-  }
-  .field select {
-    width: 100%;
-    padding: 9px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 13.5px;
-    font-family: inherit;
-    background: #fff;
+  .field label { display: block; font-size: 12.5px; font-weight: bold; margin-bottom: 5px; color: #444; }
+  .field input[type=text], .field input[type=password], .field select {
+    width: 100%; padding: 9px 10px; border: 1px solid #ccc; border-radius: 5px;
+    font-size: 13.5px; font-family: inherit;
   }
   .field .hint { font-size: 11px; color: #888; margin-top: 4px; line-height: 1.4; }
   .dropzone {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 20px 12px;
-    text-align: center;
-    font-size: 13px;
-    color: #666;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
+    border: 2px dashed #ccc; border-radius: 8px; padding: 22px 14px; text-align: center;
+    font-size: 13px; color: #666; cursor: pointer; transition: border-color .15s, background .15s;
   }
   .dropzone:hover, .dropzone.drag { border-color: var(--bordo); background: var(--bordo-claro); }
   .dropzone input { display: none; }
   .filename { font-size: 12px; color: var(--bordo); font-weight: bold; margin-top: 8px; word-break: break-all; }
   .btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--bordo);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 6px;
-    transition: opacity .15s;
+    width: 100%; padding: 12px; background: var(--bordo); color: #fff; border: none;
+    border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 6px; transition: opacity .15s;
   }
   .btn:hover { opacity: .92; }
   .btn:disabled { background: #bbb; cursor: not-allowed; }
   .status {
-    margin-top: 14px;
-    font-size: 12.5px;
-    padding: 10px 12px;
-    border-radius: 6px;
-    display: none;
-    line-height: 1.5;
+    margin-top: 14px; font-size: 12.5px; padding: 10px 12px; border-radius: 6px; display: none; line-height: 1.5;
   }
   .status.show { display: block; }
   .status.info { background: #eef3fb; color: #2a5885; }
   .status.error { background: #fdeceb; color: #a12b20; }
   .status.ok { background: #eafaf0; color: #197a44; }
-  .divider { height: 1px; background: #eee; margin: 20px 0; }
+  .divider { height: 1px; background: #eee; margin: 22px 0; }
   .small-note { font-size: 11px; color: #999; line-height: 1.5; }
 
-  .preview-wrap {
-    padding: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
+  .preview-wrap { padding: 30px; display: flex; justify-content: center; align-items: flex-start; }
   .toolbar {
-    position: sticky;
-    top: 0;
-    background: #eef0f2;
-    padding: 10px 0 14px 0;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    z-index: 10;
+    position: sticky; top: 0; background: #eef0f2; padding: 10px 0 16px 0;
+    display: flex; gap: 10px; justify-content: center; z-index: 10;
   }
-  .toolbar button {
-    padding: 9px 20px;
-    border-radius: 6px;
-    border: none;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-  }
+  .toolbar button { padding: 10px 22px; border-radius: 6px; border: none; font-size: 13.5px; font-weight: bold; cursor: pointer; }
   .toolbar .primary { background: var(--bordo); color: #fff; }
   .toolbar .ghost { background: #fff; color: var(--bordo); border: 2px solid var(--bordo); }
 
-  .page-shell {
-    width: 210mm;
-    max-width: 100%;
-    box-shadow: 0 4px 24px rgba(0,0,0,.15);
-    background: #fff;
-    transform-origin: top center;
-  }
-  .page {
-    position: relative;
-    width: 100%;
-    min-height: 297mm;
-  }
+  .page-shell { width: 210mm; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.15); background: #fff; }
+  .page { position: relative; width: 100%; min-height: 297mm; }
   .watermark-wrap {
-    position: absolute;
-    bottom: 20mm;
-    left: 0;
-    width: 100%;
-    z-index: 0;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
+    position: absolute; bottom: 20mm; left: 0; width: 100%; z-index: 0;
+    display: flex; justify-content: center; pointer-events: none;
   }
   .watermark-wrap img { width: 140mm; max-width: 60%; }
 
-  .header {
-    background: var(--bordo);
-    color: #fff;
-    padding: 30px 50px;
-    position: relative;
-    z-index: 1;
-  }
+  .header { background: var(--bordo); color: #fff; padding: 30px 50px; position: relative; z-index: 1; }
   .header .top { display: flex; justify-content: space-between; align-items: center; }
   .header .nome { font-size: 23px; font-weight: bold; margin: 0; outline: none; }
   .header .vig { font-size: 12px; opacity: .9; margin-top: 5px; }
-  .header .vig span[contenteditable] {
-    border-bottom: 1px dotted rgba(255,255,255,.5); outline: none; padding: 0 2px;
-  }
+  .header .vig span[contenteditable] { border-bottom: 1px dotted rgba(255,255,255,.5); outline: none; padding: 0 2px; }
   .header .titulo { font-size: 15px; letter-spacing: 1px; text-transform: uppercase; margin-top: 20px; opacity: .95; }
   .header .logo-header { height: 42px; }
 
   .content { padding: 28px 50px; position: relative; z-index: 1; }
-
   .veiculo-box {
-    background: var(--cinza-100);
-    border-left: 4px solid var(--bordo);
-    padding: 12px 18px;
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 22px;
-    outline: none;
+    background: var(--cinza-100); border-left: 4px solid var(--bordo); padding: 12px 18px;
+    font-size: 16px; font-weight: bold; margin-bottom: 22px; outline: none;
   }
-
   h3.secao {
-    font-size: 14.5px; font-weight: bold; color: var(--bordo);
-    text-transform: uppercase; letter-spacing: .5px;
+    font-size: 14.5px; font-weight: bold; color: var(--bordo); text-transform: uppercase; letter-spacing: .5px;
     margin: 24px 0 12px 0; border-bottom: 2px solid var(--bordo); padding-bottom: 6px;
   }
   h3.secao:first-of-type { margin-top: 0; }
-
   table.cob, table.pag { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-  table.cob td, table.pag td {
-    padding: 11px 4px; font-size: 13.5px; border-bottom: 1px solid var(--cinza-300);
-    outline: none;
-  }
+  table.cob td, table.pag td { padding: 11px 4px; font-size: 13.5px; border-bottom: 1px solid var(--cinza-300); outline: none; }
   table.cob td.v, table.pag td.v { text-align: right; font-weight: bold; white-space: nowrap; }
   table.cob tr.destaque td { font-weight: bold; font-size: 14.5px; border-bottom: 2px solid var(--bordo); padding-top: 13px; padding-bottom: 13px; }
-
   .franquia-box {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--bordo-claro); border: 1px solid var(--bordo-borda); border-radius: 4px;
-    padding: 14px 18px; margin-bottom: 6px; font-size: 14.5px;
+    display: flex; justify-content: space-between; align-items: center; background: var(--bordo-claro);
+    border: 1px solid var(--bordo-borda); border-radius: 4px; padding: 14px 18px; margin-bottom: 6px; font-size: 14.5px;
   }
   .franquia-box .lbl { font-weight: bold; outline: none; }
   .franquia-box .val { font-weight: bold; color: var(--bordo); outline: none; }
-
   table.pag { margin-bottom: 22px; }
   table.pag tr.total td { background: var(--bordo); color: #fff; font-weight: bold; font-size: 15px; padding-top: 17px; padding-bottom: 17px; }
   table.pag tr.total td:first-child { border-radius: 4px 0 0 4px; padding-left: 10px; }
   table.pag tr.total td:last-child { border-radius: 0 4px 4px 0; padding-right: 10px; }
-
   .obs-list { list-style: none; margin: 0; padding: 0; }
   .obs-list li {
-    font-size: 12.5px; color: #444; padding: 9px 0 9px 16px;
-    border-left: 3px solid #eee; margin-bottom: 7px; outline: none;
+    font-size: 12.5px; color: #444; padding: 9px 0 9px 16px; border-left: 3px solid #eee;
+    margin-bottom: 7px; outline: none; display: flex; align-items: flex-start; gap: 6px;
   }
+  .obs-list li svg { flex: none; margin-top: 1px; }
   .obs-list li b { color: #222; }
   .obs-list li .hl { color: var(--bordo); font-weight: bold; }
-
   [contenteditable="true"]:hover { background: #fffbe6; cursor: text; }
   [contenteditable="true"]:focus { background: #fff8d6; }
 
@@ -226,10 +119,9 @@
     body { background: #fff; }
     .panel, .toolbar { display: none !important; }
     .preview-wrap { padding: 0; display: block; }
-    .page-shell { box-shadow: none; width: auto; transform: none !important; }
+    .page-shell { box-shadow: none; width: auto; }
     @page { size: A4; margin: 0; }
   }
-
   @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
     .panel { border-right: none; border-bottom: 1px solid #ddd; }
@@ -242,7 +134,13 @@
 
   <div class="panel">
     <h1>Gerador de Cotações Pozza</h1>
-    <div class="sub">Escolha a seguradora, envie o PDF da cotação e eu monto o documento no padrão da Pozza. Você pode editar qualquer campo antes de baixar.</div>
+    <div class="sub">Cole a cotação da seguradora, eu extraio os dados e você confere antes de gerar o PDF.</div>
+
+    <div class="field">
+      <label>Chave de API Anthropic</label>
+      <input type="password" id="apiKey" placeholder="sk-ant-...">
+      <div class="hint">Fica guardada só no seu navegador (nunca sai daqui).</div>
+    </div>
 
     <div class="field">
       <label>Seguradora</label>
@@ -256,6 +154,7 @@
         <option value="hdi_yelum">HDI Seguros</option>
         <option value="hdi_yelum">Yelum Seguros</option>
         <option value="bradesco">Bradesco Seguros</option>
+        <option value="allianz">Allianz Seguros</option>
       </select>
       <div class="hint" id="insurerHint"></div>
     </div>
@@ -275,7 +174,8 @@
 
     <div class="divider"></div>
     <div class="small-note">
-      Depois de extrair, clique em cima de qualquer texto no documento ao lado para corrigir. Quando estiver certo, use "Baixar PDF".
+      Depois de extrair, revise os campos direto no preview ao lado — tudo é editável (clique em cima do texto).
+      Quando estiver certo, use "Baixar PDF" para exportar no padrão Pozza.
     </div>
   </div>
 
@@ -332,9 +232,23 @@
 
 <script>
 /* ============================================================
+   Ícones (inline SVG, bordô, discretos) — inseridos automaticamente
+   quando a observação menciona carro reserva ou guincho/assistência
+   ============================================================ */
+const ICON_CARRO = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A0F1F" stroke-width="2"><path d="M5 17h14M5 17a2 2 0 104 0M15 17a2 2 0 104 0M5 17l1.5-5.5A2 2 0 018.4 10h7.2a2 2 0 011.9 1.5L19 17M5 17V13M19 17V13M7 10V7a1 1 0 011-1h8a1 1 0 011 1v3"/></svg>';
+const ICON_GUINCHO = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A0F1F" stroke-width="2"><path d="M3 17h11M3 17V8h6l3 4h2M3 17a2 2 0 104 0M14 17a2 2 0 104 0M14 12V6h3l3 4v2h-2M17 8v4"/></svg>';
+
+function iconeParaObs(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes('carro reserva')) return ICON_CARRO;
+  if (t.includes('guincho') || t.includes('assist')) return ICON_GUINCHO;
+  return '';
+}
+
+/* ============================================================
    Regras de extração — mesmo padrão validado manualmente no chat
    ============================================================ */
-const SYSTEM_PROMPT = `Você é um assistente que extrai dados de cotações de seguro auto brasileiras (recebidas como PDF) e devolve APENAS um JSON válido, sem nenhum texto fora do JSON, sem markdown, sem crases.
+const SYSTEM_PROMPT = `Você é um assistente que extrai dados de cotações de seguro auto brasileiras e devolve APENAS um JSON válido, sem nenhum texto fora do JSON, sem markdown, sem crases.
 
 Formato exato de saída:
 {
@@ -344,7 +258,7 @@ Formato exato de saída:
   "veiculo": "MARCA • MODELO (sem ano)",
   "veiculo_ano": "AAAA/AAAA",
   "coberturas": [
-    {"nome": "Casco: <tipo>", "valor": "100% FIPE ou R$ X.XXX,XX", "destaque": true},
+    {"nome": "Casco: Colisão / Incêndio / Roubo e Furto", "valor": "100% FIPE (ou o percentual informado)", "destaque": true},
     {"nome": "Danos Materiais a Terceiros", "valor": "R$ XXX.XXX,XX"},
     {"nome": "Danos Corporais a Terceiros", "valor": "R$ XXX.XXX,XX"},
     {"nome": "Danos Morais", "valor": "R$ XX.XXX,XX"},
@@ -360,20 +274,20 @@ Formato exato de saída:
 }
 
 REGRAS GERAIS (valem para qualquer seguradora):
-1. NUNCA use a sigla "APP". Escreva por extenso "Acidentes Pessoais Por Passageiros Morte" / "Acidentes Pessoais Por Passageiros Invalidez". Se a seguradora não separar Morte de Invalidez, use uma única linha "Acidentes Pessoais Por Passageiros".
-2. franquia_valor NUNCA deve conter o símbolo "%".
-3. "sem_juros" só pode ser true se a expressão "sem juros" ou "s/juros" aparecer explicitamente no documento original para aquela parcela específica. Nunca assuma — na dúvida, omita o campo.
-4. Casco: se o documento não informar o valor do veículo em reais (só o percentual, ex: "100% FIPE"), use "100% FIPE" (ou o percentual exato informado) como valor — nunca invente um valor em reais.
+1. A linha de Casco é SEMPRE nomeada exatamente "Casco: Colisão / Incêndio / Roubo e Furto", com "destaque": true. O valor é sempre "100% FIPE" (ou o percentual exato informado no documento) — NUNCA um valor em reais, mesmo que o documento informe o valor do veículo.
+2. NUNCA use a sigla "APP". Escreva por extenso "Acidentes Pessoais Por Passageiros Morte" / "Acidentes Pessoais Por Passageiros Invalidez". Se a seguradora não separar Morte de Invalidez, use uma única linha "Acidentes Pessoais Por Passageiros".
+3. franquia_valor NUNCA deve conter o símbolo "%".
+4. "sem_juros" só pode ser true se a expressão "sem juros" ou "s/juros" aparecer explicitamente no documento original para aquela parcela específica. Nunca assuma — na dúvida, omita o campo.
 5. Coberturas adicionais tipo "Assistência 24h", "Carro Reserva", "Extensão de Reboque", "Assistência Residencial/Casa", "Vidros Top" etc. NÃO entram na lista "coberturas" — elas devem aparecer resumidas dentro de "observacoes", sem duplicar informação.
 6. Franquias detalhadas de vidros / faróis / lanternas / retrovisores (a seguradora costuma listar muitas): resuma em no máximo 2 itens de observação (um para vidros, outro para faróis+lanternas+retrovisores), citando os valores extremos e mencionando "franquia diferenciada" quando houver Xenon/LED/Matrix com valor maior.
 7. Gere exatamente 4 observações, nesta ordem temática, sempre que a informação existir no documento:
-   (1) carro reserva / procedimento em caso de sinistro — cite o número de dias em destaque com <span class="hl">...</span>;
-   (2) assistência 24h / guincho — cite km ou "ilimitado" em destaque com <span class="hl">...</span>;
+   (1) carro reserva / procedimento em caso de sinistro — mencione a palavra "carro reserva" explicitamente e cite o número de dias em destaque com <span class="hl">...</span>;
+   (2) assistência 24h / guincho — mencione a palavra "guincho" ou "assistência" explicitamente e cite km ou "ilimitado"/"sem limite" em destaque com <span class="hl">...</span>;
    (3) franquia de vidros;
    (4) franquia de faróis, lanternas e retrovisores.
-   Pode usar a tag <span class="hl">texto</span> dentro das observações para destacar valores importantes.
+   Pode usar <span class="hl">texto</span> para destacar valores importantes. NÃO inclua ícones ou SVG no texto — isso é feito automaticamente pelo sistema com base nas palavras "carro reserva" e "guincho"/"assistência".
 8. Datas sempre no formato DD/MM/AAAA.
-9. Marca do veículo: se não vier explícita mas o modelo for de fabricante conhecido (ex: "206" é Peugeot, "COMMANDER" é Jeep, "TRACKER" é Chevrolet), preencha a marca corretamente.
+9. Marca do veículo: se não vier explícita mas o modelo for de fabricante conhecido (ex: "206" é Peugeot, "COMMANDER" é Jeep, "TRACKER" é Chevrolet, "SANDERO" é Renault, "COMPASS" é Jeep), preencha a marca corretamente.
 10. "veiculo" deve estar em maiúsculas, sem repetir o ano.
 
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
@@ -383,30 +297,26 @@ Devolva SOMENTE o JSON, nada mais.`;
 
 const PAYMENT_RULES = {
   mapfre_manual: "Este documento já vem com a seção 'Condições de Pagamento' escrita manualmente — copie os valores e a marcação sem_juros exatamente como estiverem no texto original, sem recalcular nada.",
-  mapfre_sistema: "Extraia da tabela de parcelamento: (1) Valor à Vista total; (2) '2x no Boleto' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros. Use sempre a coluna de cartão genérica (não a com cashback/desconto exclusivo de cartão co-branded).",
-  porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista (prefira 'Boleto à vista com desconto' se existir, senão o Prêmio Total); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros.",
-  hdi_yelum: "Extraia da tabela de parcelamento: (1) Valor à Vista; (2) uma linha '6x no Débito em Conta / Cartão de Crédito' sem juros (combine se os valores de 6x forem iguais; senão separe); (3) '10x no Cartão de Crédito' sem juros; (4) '1 + 3x no Carnê' (total de 4 parcelas); (5) '1 + 6x no Carnê' (total de 7 parcelas). Se a tabela já usar notação '1+N' (comum na Yelum), use diretamente as linhas '1+3' e '1+6'. Se usar numeração direta 1x,2x,3x... (comum na HDI), '1+3' corresponde à linha de 4 parcelas e '1+6' à linha de 7 parcelas.",
-  bradesco: "Extraia da tabela de parcelamento: (1) Valor à Vista (TOTAL A PAGAR); (2) '4x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros — use a coluna genérica 'Cartão de Crédito' (não a 'Cartão de Crédito Bradesco' co-branded)."
+  mapfre_sistema: "Extraia da tabela de parcelamento: (1) Valor à Vista = Prêmio Total; (2) '2x no Boleto' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros. Use sempre a coluna de cartão genérica (não a com cashback/desconto exclusivo de cartão co-branded).",
+  porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista = o PRÊMIO TOTAL do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto', mesmo que ele apareça destacado no documento); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros.",
+  hdi_yelum: "Extraia da tabela de parcelamento: (1) Valor à Vista = Total à Vista; (2) '6x no Débito em Conta / Cartão de Crédito' sem juros (combine em uma linha se os valores de 6x forem iguais nas duas colunas; senão separe); (3) '10x no Cartão de Crédito' sem juros; (4) '1 + 3x no Carnê' (total de 4 parcelas, SEM marcar sem_juros a menos que esteja explícito); (5) '1 + 6x no Carnê' (total de 7 parcelas, mesma regra). Se a tabela já usar notação '1+N' (comum na Yelum), use diretamente as linhas '1+3' e '1+6'. Se a tabela usar numeração direta 1x,2x,3x... (comum na HDI), '1+3' corresponde à linha de 4 parcelas e '1+6' corresponde à linha de 7 parcelas.",
+  bradesco: "Extraia da tabela de parcelamento: (1) Valor à Vista = TOTAL A PAGAR; (2) '4x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros — use a coluna genérica 'Cartão de Crédito' (não a coluna 'Cartão de Crédito Bradesco' co-branded, que costuma ter valor diferente).",
+  allianz: "Extraia da tabela de parcelamento: (1) Valor à Vista = Preço Total; (2) '6x no Débito em Conta' sem juros; (3) '10x no Cartão de Crédito' sem juros."
 };
 
 const INSURER_HINTS = {
   mapfre_manual: "Cotação digitada manualmente (Word), estilo com pontilhados.",
   mapfre_sistema: "PDF gerado direto pelo sistema da MAPFRE, com tabela detalhada de coberturas e parcelamento.",
-  porto_azul_mitsui_itau: "Porto, Azul, Mitsui e Itaú usam a mesma regra de pagamento (4x combinado + 10x cartão).",
+  porto_azul_mitsui_itau: "Porto, Azul, Mitsui e Itaú usam a mesma regra de pagamento (4x combinado + 10x cartão, sem desconto à vista).",
   hdi_yelum: "HDI e Yelum usam a mesma regra de pagamento (6x débito/cartão + 10x cartão + 1+3 e 1+6 no carnê).",
-  bradesco: "Demonstrativo de Cálculo Bradesco, com tabela de parcelamento por Débito / Cartão / Carnê."
+  bradesco: "Demonstrativo de Cálculo Bradesco, com tabela de parcelamento por Débito / Cartão / Carnê.",
+  allianz: "Cotação Allianz Auto — 6x Débito em Conta + 10x Cartão de Crédito, sem juros."
 };
 
-let uploadedFileBase64 = null;
-let uploadedFileName = null;
-
+let uploadedFile = null;
 const $ = (id) => document.getElementById(id);
 
-function setStatus(msg, type) {
-  const el = $('status');
-  el.textContent = msg;
-  el.className = 'status show ' + (type || 'info');
-}
+function setStatus(msg, type) { const el = $('status'); el.textContent = msg; el.className = 'status show ' + (type || 'info'); }
 function clearStatus() { $('status').className = 'status'; }
 
 $('insurer').addEventListener('change', updateInsurerHint);
@@ -419,54 +329,63 @@ dropzone.addEventListener('click', () => fileInput.click());
 dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
 dropzone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropzone.classList.remove('drag');
+  e.preventDefault(); dropzone.classList.remove('drag');
   if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
 });
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files.length) handleFile(e.target.files[0]);
-});
+fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+function handleFile(file) { uploadedFile = file; $('filename').textContent = file.name; }
 
-function handleFile(file) {
-  uploadedFileName = file.name;
-  $('filename').textContent = file.name;
-  const reader = new FileReader();
-  reader.onload = () => {
-    uploadedFileBase64 = reader.result.split(',')[1];
-  };
-  reader.readAsDataURL(file);
+async function extractPdfText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = '';
+  const maxPages = Math.min(pdf.numPages, 6);
+  for (let i = 1; i <= maxPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it => it.str).join(' ') + '\n\n';
+  }
+  return { text: text.trim(), pageCount: pdf.numPages };
 }
 
-async function callClaude(base64Pdf) {
+async function rasterizePdfPages(file, maxPages) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const images = [];
+  const n = Math.min(pdf.numPages, maxPages || 4);
+  for (let i = 1; i <= n; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1.6 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    images.push(canvas.toDataURL('image/png').split(',')[1]);
+  }
+  return images;
+}
+
+async function callClaude(userContent) {
+  const apiKey = $('apiKey').value.trim();
+  if (!apiKey) throw new Error('Cole sua chave de API da Anthropic antes de continuar.');
   const insurerKey = $('insurer').value;
   const systemPrompt = SYSTEM_PROMPT.replace('__PAYMENT_RULE__', PAYMENT_RULES[insurerKey]);
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', 'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'
+    },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1500,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "document", source: { type: "base64", media_type: "application/pdf", data: base64Pdf } },
-            { type: "text", text: "Extraia os dados desta cotação de seguro auto conforme as regras do sistema." }
-          ]
-        }
-      ]
+      model: 'claude-sonnet-5', max_tokens: 2000, system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }]
     })
   });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error('Erro da API (' + response.status + '): ' + errText.slice(0, 300));
-  }
-  const data = await response.json();
+  if (!resp.ok) { const errText = await resp.text(); throw new Error('Erro da API (' + resp.status + '): ' + errText.slice(0, 300)); }
+  const data = await resp.json();
   const textBlock = data.content.find(b => b.type === 'text');
-  if (!textBlock) throw new Error('A IA não retornou texto.');
+  if (!textBlock) throw new Error('A API não retornou texto.');
   let raw = textBlock.text.trim();
   raw = raw.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
   return JSON.parse(raw);
@@ -474,22 +393,29 @@ async function callClaude(base64Pdf) {
 
 $('extractBtn').addEventListener('click', async () => {
   clearStatus();
-  if (!uploadedFileBase64) { setStatus('Escolha o PDF da cotação primeiro.', 'error'); return; }
-
-  const btn = $('extractBtn');
-  btn.disabled = true;
-  setStatus('Lendo a cotação e extraindo os dados...', 'info');
-
+  if (!uploadedFile) { setStatus('Escolha o PDF da cotação primeiro.', 'error'); return; }
+  const btn = $('extractBtn'); btn.disabled = true;
+  setStatus('Lendo o PDF...', 'info');
   try {
-    const dados = await callClaude(uploadedFileBase64);
+    const { text } = await extractPdfText(uploadedFile);
+    let userContent;
+    if (text.length > 200) {
+      userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto:\n\n' + text.slice(0, 15000) }];
+      setStatus('Enviando texto extraído para a IA...', 'info');
+    } else {
+      setStatus('PDF sem texto extraível — convertendo páginas em imagem...', 'info');
+      const images = await rasterizePdfPages(uploadedFile, 4);
+      userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto (imagens das páginas em anexo):' }];
+      images.forEach(b64 => { userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: b64 } }); });
+      setStatus('Enviando imagens para a IA...', 'info');
+    }
+    const dados = await callClaude(userContent);
     preencherPreview(dados);
-    setStatus('Dados extraídos! Revise os campos no documento ao lado antes de baixar.', 'ok');
+    setStatus('Dados extraídos! Revise os campos ao lado antes de baixar o PDF.', 'ok');
   } catch (err) {
     console.error(err);
     setStatus(err.message || 'Erro ao extrair os dados.', 'error');
-  } finally {
-    btn.disabled = false;
-  }
+  } finally { btn.disabled = false; }
 });
 
 function preencherPreview(d) {
@@ -525,7 +451,8 @@ function preencherPreview(d) {
   (d.observacoes || []).forEach(o => {
     const li = document.createElement('li');
     li.contentEditable = 'true';
-    li.innerHTML = o;
+    const icone = iconeParaObs(o);
+    li.innerHTML = (icone ? icone : '') + '<span>' + o + '</span>';
     listObs.appendChild(li);
   });
 }
@@ -533,10 +460,7 @@ function preencherPreview(d) {
 $('downloadBtn').addEventListener('click', () => window.print());
 
 $('resetBtn').addEventListener('click', () => {
-  uploadedFileBase64 = null;
-  uploadedFileName = null;
-  $('filename').textContent = '';
-  fileInput.value = '';
+  uploadedFile = null; $('filename').textContent = ''; fileInput.value = '';
   $('fCliente').textContent = 'Nome do Segurado';
   $('fVigIni').textContent = 'DD/MM/AAAA';
   $('fVigFim').textContent = 'DD/MM/AAAA';
@@ -547,6 +471,11 @@ $('resetBtn').addEventListener('click', () => {
   $('listObs').innerHTML = '';
   clearStatus();
 });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 </script>
 
 </body>
