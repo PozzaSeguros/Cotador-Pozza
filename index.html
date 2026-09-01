@@ -121,6 +121,11 @@
     .preview-wrap { padding: 0; display: block; }
     .page-shell { box-shadow: none; width: auto; }
     @page { size: A4; margin: 0; }
+    /* Força o Chrome a imprimir cores/imagens de fundo mesmo se a
+       pessoa não marcar "Gráficos de segundo plano" no diálogo de
+       impressão — sem isso, o cabeçalho bordô some e só sobra o
+       logo (branco) quase invisível no papel branco. */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
   }
   @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
@@ -422,10 +427,20 @@ $('extractBtn').addEventListener('click', async () => {
   setStatus('Lendo o PDF...', 'info');
   try {
     const { text } = await extractPdfText(uploadedFile);
+    const insurerKey = $('insurer').value;
     let userContent;
-    if (text.length > 200) {
+    if (text.length > 200 && insurerKey !== 'mapfre_sistema') {
       userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto:\n\n' + text.slice(0, 15000) }];
       setStatus('Enviando texto extraído para a IA...', 'info');
+    } else if (text.length > 200 && insurerKey === 'mapfre_sistema') {
+      // A tabela de parcelamento da MAPFRE (sistema oficial) tem 4 colunas lado a lado que ficam
+      // embaralhadas no texto puro extraído do PDF. Mandar as páginas como imagem evita que a IA
+      // confunda os valores de uma coluna com os de outra.
+      setStatus('Convertendo páginas em imagem para ler a tabela de pagamento corretamente...', 'info');
+      const images = await rasterizePdfPages(uploadedFile, 4);
+      userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto. Use o texto abaixo para os dados gerais, mas para a tabela "Formas de Pagamento" use as imagens em anexo (o texto puro embaralha as 4 colunas — as imagens mostram a tabela como ela realmente é, coluna por coluna):\n\n' + text.slice(0, 15000) }];
+      images.forEach(b64 => { userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: b64 } }); });
+      setStatus('Enviando texto + imagens para a IA...', 'info');
     } else {
       setStatus('PDF sem texto extraível — convertendo páginas em imagem...', 'info');
       const images = await rasterizePdfPages(uploadedFile, 4);
