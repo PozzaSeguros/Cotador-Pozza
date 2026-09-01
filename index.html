@@ -300,7 +300,7 @@ Devolva SOMENTE o JSON, nada mais.`;
 
 const PAYMENT_RULES = {
   mapfre_manual: "Este documento já vem com a seção 'Condições de Pagamento' escrita manualmente — copie os valores e a marcação sem_juros exatamente como estiverem no texto original, sem recalcular nada.",
-  mapfre_sistema: "Extraia da tabela de parcelamento: (1) Valor à Vista = Prêmio Total; (2) '2x no Boleto' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros. Use sempre a coluna de cartão genérica (não a com cashback/desconto exclusivo de cartão co-branded).",
+  mapfre_sistema: "Extraia da tabela de parcelamento: (1) Valor à Vista = Prêmio Total; (2) '2x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros. Use sempre a coluna de cartão genérica (não a com cashback/desconto exclusivo de cartão co-branded).",
   porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista = o PRÊMIO TOTAL do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto', mesmo que ele apareça destacado no documento); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros.",
   hdi_yelum: "Extraia da tabela de parcelamento: (1) Valor à Vista = Total à Vista; (2) '6x no Débito em Conta / Cartão de Crédito' sem juros (combine em uma linha se os valores de 6x forem iguais nas duas colunas; senão separe); (3) '10x no Cartão de Crédito' sem juros; (4) '1 + 3x no Carnê' (total de 4 parcelas, SEM marcar sem_juros a menos que esteja explícito); (5) '1 + 6x no Carnê' (total de 7 parcelas, mesma regra). Se a tabela já usar notação '1+N' (comum na Yelum), use diretamente as linhas '1+3' e '1+6'. Se a tabela usar numeração direta 1x,2x,3x... (comum na HDI), '1+3' corresponde à linha de 4 parcelas e '1+6' corresponde à linha de 7 parcelas.",
   bradesco: "Extraia da tabela de parcelamento: (1) Valor à Vista = TOTAL A PAGAR; (2) '4x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros — use a coluna genérica 'Cartão de Crédito' (não a coluna 'Cartão de Crédito Bradesco' co-branded, que costuma ter valor diferente).",
@@ -327,6 +327,13 @@ function clearStatus() { $('status').className = 'status'; }
 $('insurer').addEventListener('change', updateInsurerHint);
 function updateInsurerHint() { $('insurerHint').textContent = INSURER_HINTS[$('insurer').value] || ''; }
 updateInsurerHint();
+
+// Lembrar a chave de API entre sessões (fica só no seu navegador)
+const savedKey = localStorage.getItem('pozza_api_key');
+if (savedKey) { $('apiKey').value = savedKey; }
+$('apiKey').addEventListener('input', () => {
+  localStorage.setItem('pozza_api_key', $('apiKey').value.trim());
+});
 
 const dropzone = $('dropzone');
 const fileInput = $('fileInput');
