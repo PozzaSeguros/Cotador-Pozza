@@ -155,6 +155,7 @@
         <option value="hdi_yelum">Yelum Seguros</option>
         <option value="bradesco">Bradesco Seguros</option>
         <option value="allianz">Allianz Seguros</option>
+        <option value="tokio_marine">Tokio Marine</option>
       </select>
       <div class="hint" id="insurerHint"></div>
     </div>
@@ -303,7 +304,8 @@ const PAYMENT_RULES = {
   porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista = o PRÊMIO TOTAL do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto', mesmo que ele apareça destacado no documento); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros.",
   hdi_yelum: "Extraia da tabela de parcelamento: (1) Valor à Vista = Total à Vista; (2) '6x no Débito em Conta / Cartão de Crédito' sem juros (combine em uma linha se os valores de 6x forem iguais nas duas colunas; senão separe); (3) '10x no Cartão de Crédito' sem juros; (4) '1 + 3x no Carnê' (total de 4 parcelas, SEM marcar sem_juros a menos que esteja explícito); (5) '1 + 6x no Carnê' (total de 7 parcelas, mesma regra). Se a tabela já usar notação '1+N' (comum na Yelum), use diretamente as linhas '1+3' e '1+6'. Se a tabela usar numeração direta 1x,2x,3x... (comum na HDI), '1+3' corresponde à linha de 4 parcelas e '1+6' corresponde à linha de 7 parcelas.",
   bradesco: "Extraia da tabela de parcelamento: (1) Valor à Vista = TOTAL A PAGAR; (2) '4x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros — use a coluna genérica 'Cartão de Crédito' (não a coluna 'Cartão de Crédito Bradesco' co-branded, que costuma ter valor diferente).",
-  allianz: "Extraia da tabela de parcelamento: (1) Valor à Vista = Preço Total; (2) '6x no Débito em Conta' sem juros; (3) '10x no Cartão de Crédito' sem juros."
+  allianz: "Extraia da tabela de parcelamento: (1) Valor à Vista = Preço Total; (2) '6x no Débito em Conta' sem juros; (3) '10x no Cartão de Crédito' sem juros.",
+  tokio_marine: "Extraia da tabela de parcelamento: (1) Valor à Vista; (2) '4x no Carnê ou Ficha' sem juros; (3) '5x no Débito em Conta' sem juros; (4) '12x no Cartão de Crédito' sem juros."
 };
 
 const INSURER_HINTS = {
@@ -312,7 +314,8 @@ const INSURER_HINTS = {
   porto_azul_mitsui_itau: "Porto, Azul, Mitsui e Itaú usam a mesma regra de pagamento (4x combinado + 10x cartão, sem desconto à vista).",
   hdi_yelum: "HDI e Yelum usam a mesma regra de pagamento (6x débito/cartão + 10x cartão + 1+3 e 1+6 no carnê).",
   bradesco: "Demonstrativo de Cálculo Bradesco, com tabela de parcelamento por Débito / Cartão / Carnê.",
-  allianz: "Cotação Allianz Auto — 6x Débito em Conta + 10x Cartão de Crédito, sem juros."
+  allianz: "Cotação Allianz Auto — 6x Débito em Conta + 10x Cartão de Crédito, sem juros.",
+  tokio_marine: "Cotação Tokio Marine — 4x Carnê + 5x Débito em Conta + 12x Cartão de Crédito, sem juros."
 };
 
 let uploadedFile = null;
