@@ -306,7 +306,7 @@ Devolva SOMENTE o JSON, nada mais.`;
 const PAYMENT_RULES = {
   mapfre_manual: "Este documento já vem com a seção 'Condições de Pagamento' escrita manualmente — copie os valores e a marcação sem_juros exatamente como estiverem no texto original, sem recalcular nada.",
   mapfre_sistema: "A tabela de parcelamento tem 4 colunas lado a lado, cada uma com seu próprio cabeçalho e sua própria lista de 1x a 10x/12x: 'Boleto', 'Débito em Conta', 'Débito c/ 1º em Boleto' e 'Cartão de Crédito'. Extraia EXATAMENTE 4 linhas, cada uma de uma coluna diferente — NUNCA pegue duas parcelas seguidas da mesma coluna: (1) Valor à Vista = Prêmio Total; (2) a linha '2x' DENTRO DA COLUNA 'Boleto', rotulada '2x no Carnê' (marque sem_juros só se essa linha específica disser 'Sem Juros'); (3) a linha '6x' DENTRO DA COLUNA 'Débito em Conta' (não da coluna Boleto), rotulada '6x no Débito em Conta'; (4) a linha '10x' DENTRO DA COLUNA 'Cartão de Crédito' (não da coluna Boleto), rotulada '10x no Cartão de Crédito', usando a coluna de cartão genérica (não a com cashback/desconto exclusivo de cartão co-branded). Antes de responder, confira: a partir da parcela 6x, NENHUM valor pode ter sido copiado da coluna 'Boleto' — se o valor da linha 6x ou 10x tiver 'Com Juros', você pegou da coluna errada.",
-  porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista = o PRÊMIO TOTAL do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto', mesmo que ele apareça destacado no documento); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros.",
+  porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista = o PRÊMIO TOTAL do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto', mesmo que ele apareça destacado no documento); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros. IMPORTANTE: se a tabela de Débito em Conta tiver juros a partir de alguma parcela (verifique a palavra 'juros' ao lado de cada valor), NÃO combine — nesse caso use só '4x no Cartão de Crédito' sem juros como linha (2).",
   hdi_yelum: "Extraia da tabela de parcelamento: (1) Valor à Vista = Total à Vista; (2) '6x no Débito em Conta / Cartão de Crédito' sem juros (combine em uma linha se os valores de 6x forem iguais nas duas colunas; senão separe); (3) '10x no Cartão de Crédito' sem juros; (4) '1 + 3x no Carnê' (total de 4 parcelas, SEM marcar sem_juros a menos que esteja explícito); (5) '1 + 6x no Carnê' (total de 7 parcelas, mesma regra). Se a tabela já usar notação '1+N' (comum na Yelum), use diretamente as linhas '1+3' e '1+6'. Se a tabela usar numeração direta 1x,2x,3x... (comum na HDI), '1+3' corresponde à linha de 4 parcelas e '1+6' corresponde à linha de 7 parcelas.",
   bradesco: "Extraia da tabela de parcelamento: (1) Valor à Vista = TOTAL A PAGAR; (2) '4x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros — use a coluna genérica 'Cartão de Crédito' (não a coluna 'Cartão de Crédito Bradesco' co-branded, que costuma ter valor diferente).",
   allianz: "Extraia da tabela de parcelamento: (1) Valor à Vista = Preço Total; (2) '6x no Débito em Conta' sem juros; (3) '10x no Cartão de Crédito' sem juros.",
@@ -428,17 +428,21 @@ $('extractBtn').addEventListener('click', async () => {
   try {
     const { text } = await extractPdfText(uploadedFile);
     const insurerKey = $('insurer').value;
+    const usaImagemFranquia = ['mapfre_sistema', 'porto_azul_mitsui_itau'].includes(insurerKey);
     let userContent;
-    if (text.length > 200 && insurerKey !== 'mapfre_sistema') {
+    if (text.length > 200 && !usaImagemFranquia) {
       userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto:\n\n' + text.slice(0, 15000) }];
       setStatus('Enviando texto extraído para a IA...', 'info');
-    } else if (text.length > 200 && insurerKey === 'mapfre_sistema') {
-      // A tabela de parcelamento da MAPFRE (sistema oficial) tem 4 colunas lado a lado que ficam
-      // embaralhadas no texto puro extraído do PDF. Mandar as páginas como imagem evita que a IA
-      // confunda os valores de uma coluna com os de outra.
-      setStatus('Convertendo páginas em imagem para ler a tabela de pagamento corretamente...', 'info');
+    } else if (text.length > 200 && usaImagemFranquia) {
+      // Nessas seguradoras (MAPFRE sistema / Porto-Azul-Mitsui-Itaú), a tabela de Casco ou de
+      // pagamento tem colunas lado a lado (ex: LMI | Franquia | Var. Opcionais | Depreciação |
+      // Valor do Prêmio) que ficam embaralhadas no texto puro extraído do PDF — a IA já
+      // confundiu "Franquia" com "Valor do Prêmio" várias vezes usando só texto. Mandar as
+      // páginas como imagem evita isso, porque a tabela aparece coluna por coluna como
+      // realmente é.
+      setStatus('Convertendo páginas em imagem para ler a tabela corretamente...', 'info');
       const images = await rasterizePdfPages(uploadedFile, 4);
-      userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto. Use o texto abaixo para os dados gerais, mas para a tabela "Formas de Pagamento" use as imagens em anexo (o texto puro embaralha as 4 colunas — as imagens mostram a tabela como ela realmente é, coluna por coluna):\n\n' + text.slice(0, 15000) }];
+      userContent = [{ type: 'text', text: 'Extraia os dados desta cotação de seguro auto. Use o texto abaixo para os dados gerais, mas para a linha de Casco (franquia_valor) e para a tabela de pagamento use as IMAGENS em anexo — o texto puro embaralha as colunas lado a lado (LMI | Franquia | Var. Opcionais | Depreciação | Valor do Prêmio), enquanto a imagem mostra a tabela real, coluna por coluna. Confirme visualmente qual coluna é "Franquia" antes de preencher franquia_valor — NUNCA pegue o valor da coluna "Valor do Prêmio" (a última coluna, à direita):\n\n' + text.slice(0, 15000) }];
       images.forEach(b64 => { userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: b64 } }); });
       setStatus('Enviando texto + imagens para a IA...', 'info');
     } else {
