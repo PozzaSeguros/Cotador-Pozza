@@ -227,6 +227,7 @@
         <option value="mapfre_residencial">MAPFRE Residencial</option>
         <option value="hdi_residencial">HDI Residencial (à vista + 4x + 10x cartão)</option>
         <option value="hdi_residencial_4x">HDI Residencial (à vista + 4x apenas)</option>
+        <option value="bradesco_residencial">Bradesco Residencial</option>
       </select>
       <div class="hint" id="insurerHintResidencial"></div>
     </div>
@@ -455,6 +456,7 @@ REGRAS GERAIS:
 4. franquias: inclua APENAS as coberturas que realmente têm franquia diferente de zero/"-"/"Sem Franquia" no documento. Nunca invente uma franquia para cobertura que não tiver.
 5. Datas sempre no formato DD/MM/AAAA.
 6. Se o documento tiver mais de um "Local em Risco" (mais de um imóvel na mesma apólice) com as MESMAS coberturas e valores repetidos para cada local, NÃO duplique as linhas de cobertura — liste cada cobertura UMA ÚNICA VEZ com o LMI de um local (já que é igual em todos), e mencione a quantidade de imóveis no campo "imovel" (ex: "Casa Habitual (2 imóveis)"). O prêmio total/valor à vista, porém, já vem consolidado somando todos os locais — use o "Prêmio Líquido Total" do documento (ou equivalente), não o prêmio de um local isolado.
+7. Alguns documentos (ex: Bradesco) mostram o percentual da franquia numa coluna separada chamada "POS" ou "POS (% prejuízo)" e o valor mínimo em reais numa coluna "Franquia" — nesse caso monte o texto da franquia normalmente como "{percentual} dos prejuízos indenizáveis, com mínimo de {valor}." combinando as duas colunas. Se a coluna de percentual disser "Não há" ou estiver vazia/"-", essa cobertura NÃO tem franquia — não a inclua. Se a cobertura "Básica" tiver uma nota de rodapé (ex: "(a)") detalhando percentuais e mínimos só para algumas partes dela (ex: só para Fumaça/Queda de Aeronaves/Impacto de Veículos), inclua uma franquia para "Básica" usando exatamente esse percentual e esse mínimo da nota, e não invente franquia para as partes da nota que dizem "Não há".
 
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
 __PAYMENT_RULE_RESIDENCIAL__
@@ -466,13 +468,15 @@ Devolva SOMENTE o JSON, nada mais.`;
 const RESIDENCIAL_PAYMENT_RULES = {
   mapfre_residencial: "O rótulo da linha 2 é \"4x no Boleto\" e o da linha 3 é \"10x no Cartão de Crédito\", ambas marcadas como sem juros. Procure na tabela de \"Condições de Pagamento\" a linha \"4 Boletos - s/ entrada (sem juros)\" para preencher parcela_4x, e a linha \"CARTÃO CRÉDITO - 10 parc (Sem Juros)\" para preencher parcela_10x. valor_a_vista é o \"Prêmio Líquido\" (ou \"1 Boleto (à vista)\").",
   hdi_residencial: "Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" como equivalente da linha 2, mas rotule-a \"4x no Carnê\" (não \"Boleto\"). Para a linha 3, use a coluna \"Cartão de Crédito\" (a única variante com valor preenchido, geralmente sob \"1ª a 7 dias\" — ignore a variante \"1ª no Ato\" quando estiver vazia/\"-\"), rotulada \"10x no Cartão de Crédito\". Ignore completamente a coluna \"Débito\" e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.).",
-  hdi_residencial_4x: "Esta cotação usa SOMENTE 2 linhas — Valor à Vista e uma parcela de 4x — NÃO inclua a linha de 10x de jeito nenhum: deixe parcela_10x_label e parcela_10x_valor como null. Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" para a linha de 4x, rotulada \"4x no Carnê\" (não \"Boleto\"). Ignore completamente a coluna \"Débito\", a coluna \"Cartão de Crédito\" inteira, e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.)."
+  hdi_residencial_4x: "Esta cotação usa SOMENTE 2 linhas — Valor à Vista e uma parcela de 4x — NÃO inclua a linha de 10x de jeito nenhum: deixe parcela_10x_label e parcela_10x_valor como null. Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" para a linha de 4x, rotulada \"4x no Carnê\" (não \"Boleto\"). Ignore completamente a coluna \"Débito\", a coluna \"Cartão de Crédito\" inteira, e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.).",
+  bradesco_residencial: "Este documento tem uma única tabela de parcelamento chamada \"CCB e/ou Carnê\", dividida em duas colunas \"Com Entrada\" e \"Sem Entrada\" (cada uma com Qtd. Parcelas / 1ª parcela / Demais parcelas / Prêmio total) — NÃO existe coluna separada de \"Cartão de Crédito\" nesta seguradora. Use o lado \"Sem Entrada\". Procure a linha com \"Qtd. Parcelas\" = 4x para a linha 2 (rotulada \"4x no Carnê\", valor = \"Demais parcelas\" dessa linha) e a linha com \"Qtd. Parcelas\" = 10x para a linha 3 (rotulada \"10x no Carnê\" — não \"Cartão de Crédito\", já que esta seguradora não oferece isso neste documento —, valor = \"Demais parcelas\" dessa linha). Muitas cotações da Bradesco (principalmente as de prêmio baixo) só oferecem a opção \"1x\" na tabela — nesse caso NÃO existem linhas de 4x nem 10x: deixe parcela_4x_valor e parcela_10x_valor como null, mesmo que isso signifique não preencher nenhuma parcela. NUNCA invente ou calcule uma parcela de 4x/10x dividindo o valor à vista. valor_a_vista é o \"Prêmio total\" da seção \"Demonstrativo do Prêmio\" (que já inclui o IOF)."
 };
 
 const INSURER_HINTS_RESIDENCIAL = {
   mapfre_residencial: "Cotação de Seguro MAPFRE Residencial (sistema oficial), com tabela de coberturas (LMI + Franquia + Prêmio) e diversas condições de pagamento.",
   hdi_residencial: "Orçamento HDI EM CASA — 3 faixas (à vista + 4x + 10x cartão). Tabela de pagamento em Débito/Carnê/Cartão (sem coluna Boleto); pode ter mais de um \"Local em Risco\" na mesma apólice.",
-  hdi_residencial_4x: "Orçamento HDI EM CASA — apenas 2 faixas (à vista + 4x), sem linha de cartão em 10x. Tabela de pagamento em Débito/Carnê/Cartão (sem coluna Boleto); pode ter mais de um \"Local em Risco\" na mesma apólice."
+  hdi_residencial_4x: "Orçamento HDI EM CASA — apenas 2 faixas (à vista + 4x), sem linha de cartão em 10x. Tabela de pagamento em Débito/Carnê/Cartão (sem coluna Boleto); pode ter mais de um \"Local em Risco\" na mesma apólice.",
+  bradesco_residencial: "Cotação Bradesco Residencial Sob Medida — tabela de pagamento única \"CCB e/ou Carnê\" (sem cartão de crédito separado); cotações de prêmio baixo costumam só ter a opção 1x, sem 4x/10x disponíveis. Coberturas usam colunas LMGCC + POS (%) + Franquia (R$) separadas."
 };
 
 $('insurerResidencial').addEventListener('change', updateInsurerHintResidencial);
@@ -630,9 +634,10 @@ function preencherPreviewResidencial(d) {
 
   const tblParc = $('rTblParcelas');
   tblParc.innerHTML = '';
-  const parcelas = [
-    { label: d.parcela_4x_label || '4x no Boleto', valor: d.parcela_4x_valor }
-  ];
+  const parcelas = [];
+  if (d.parcela_4x_valor) {
+    parcelas.push({ label: d.parcela_4x_label || '4x no Boleto', valor: d.parcela_4x_valor });
+  }
   if (d.parcela_10x_valor) {
     parcelas.push({ label: d.parcela_10x_label || '10x no Cartão de Crédito', valor: d.parcela_10x_valor });
   }
