@@ -224,6 +224,8 @@
       <label>Seguradora</label>
       <select id="insurerResidencial">
         <option value="mapfre_residencial">MAPFRE Residencial</option>
+        <option value="hdi_residencial">HDI Residencial (à vista + 4x + 10x cartão)</option>
+        <option value="hdi_residencial_4x">HDI Residencial (à vista + 4x apenas)</option>
       </select>
       <div class="hint" id="insurerHintResidencial"></div>
     </div>
@@ -436,31 +438,40 @@ Formato exato de saída:
     {"nome": "Nome da cobertura por extenso", "valor": "R$ X.XXX.XXX,XX"}
   ],
   "valor_a_vista": "R$ X.XXX,XX",
-  "parcela_boleto_4x": "R$ XXX,XX",
-  "parcela_cartao_10x": "R$ XXX,XX",
+  "parcela_4x_label": "4x no Boleto (ou 4x no Carnê, conforme a regra desta seguradora)",
+  "parcela_4x_valor": "R$ XXX,XX",
+  "parcela_10x_label": "10x no Cartão de Crédito",
+  "parcela_10x_valor": "R$ XXX,XX",
   "franquias": [
     {"cobertura": "Nome exatamente igual ao usado em coberturas", "percentual": "10%", "minimo": "R$ XXX,XX"}
   ]
 }
 
 REGRAS GERAIS:
-1. Escreva o nome de cada cobertura por extenso, igual ao documento original, sem abreviações nem pontilhados (ex: "Cobertura Básica: Incêndio / Raio / Explosão / Queda de Aeronaves / Fumaça", "Responsabilidade Civil Familiar", "Roubo e Furto de Bens Mediante Arrombamento", "Vendaval, Granizo e Impacto de Veículos Terrestre", "Danos Elétricos e Queda de Raio Fora do Terreno Segurado", "Rompimento de Tubulações Oriundas do Imóvel Segurado", "Perda ou Pagamento de Aluguel", "Quebra de Vidros, Espelhos e Aparelhos Sanitários", "Recomposição de Documentos").
-2. O campo "valor" de cada cobertura é sempre o LMI/capital segurado (limite máximo de indenização), NUNCA o valor do prêmio daquela linha.
-3. "imovel" deve refletir o tipo do risco do documento (ex: "1 - Casa Habitual" vira "Casa Habitual"; "2 - Apartamento Habitual" vira "Apartamento Habitual").
-4. franquias: inclua APENAS as coberturas que realmente têm franquia diferente de zero/"-" no documento. Nunca invente uma franquia para cobertura que não tiver.
+1. Escreva o nome de cada cobertura por extenso, igual ao documento original, sem abreviações nem pontilhados (ex: "Cobertura Básica: Incêndio / Raio / Explosão / Queda de Aeronaves / Fumaça", "Responsabilidade Civil Familiar", "Roubo e Furto de Bens Mediante Arrombamento", "Vendaval, Granizo e Impacto de Veículos Terrestre", "Danos Elétricos e Queda de Raio Fora do Terreno Segurado", "Rompimento de Tubulações Oriundas do Imóvel Segurado", "Perda ou Pagamento de Aluguel", "Quebra de Vidros, Espelhos e Aparelhos Sanitários", "Recomposição de Documentos", "Incêndio", "Cobertura de Assistências Essenciais", "Cláusula Específica de Valor Novo").
+2. O campo "valor" de cada cobertura é sempre o LMI/capital segurado (limite máximo de indenização), NUNCA o valor do prêmio daquela linha. Se o documento não informar um LMI para a cobertura (ex: assistências, cláusulas de serviço, mostrando "-"), use "Incluída" como valor em vez de inventar um número.
+3. "imovel" deve refletir o tipo do risco do documento (ex: "1 - Casa Habitual" ou "RESIDENCIA HABITUAL CASA" vira "Casa Habitual"; "2 - Apartamento Habitual" vira "Apartamento Habitual").
+4. franquias: inclua APENAS as coberturas que realmente têm franquia diferente de zero/"-"/"Sem Franquia" no documento. Nunca invente uma franquia para cobertura que não tiver.
 5. Datas sempre no formato DD/MM/AAAA.
+6. Se o documento tiver mais de um "Local em Risco" (mais de um imóvel na mesma apólice) com as MESMAS coberturas e valores repetidos para cada local, NÃO duplique as linhas de cobertura — liste cada cobertura UMA ÚNICA VEZ com o LMI de um local (já que é igual em todos), e mencione a quantidade de imóveis no campo "imovel" (ex: "Casa Habitual (2 imóveis)"). O prêmio total/valor à vista, porém, já vem consolidado somando todos os locais — use o "Prêmio Líquido Total" do documento (ou equivalente), não o prêmio de um local isolado.
 
-REGRA FIXA DE CONDIÇÕES DE PAGAMENTO (vale para toda cotação residencial, de qualquer seguradora):
-O padrão Pozza para residencial é sempre estas 3 linhas, nesta ordem, todas "sem juros":
-  (1) Valor do Seguro à Vista = o prêmio total/líquido da cotação;
-  (2) 4x no Boleto sem juros;
-  (3) 10x no Cartão de Crédito sem juros.
-Procure no documento os valores exatos de parcela para 4 parcelas no boleto e 10 parcelas no cartão de crédito (ex: na tabela de "Condições de Pagamento" da MAPFRE, procure a linha "4 Boletos - s/ entrada (sem juros)" para a parcela de 4x, e a linha "CARTÃO CRÉDITO - 10 parc (Sem Juros)" para a parcela de 10x). Se alguma dessas parcelas específicas (4x boleto ou 10x cartão) não aparecer no documento, deixe o campo correspondente como null — NUNCA calcule ou estime esse valor a partir de outra parcela.
+REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
+__PAYMENT_RULE_RESIDENCIAL__
+
+AVISO CRÍTICO: siga exatamente o número de parcelas pedido na regra acima — algumas cotações da Pozza têm só 2 informações (Valor à Vista + 4x), outras têm 3 (Valor à Vista + 4x + 10x). Quando a regra disser para não incluir a linha de 10x, deixe parcela_10x_label e parcela_10x_valor como null — nunca invente essa linha. NUNCA copie a tabela de parcelamento inteira do documento. Se alguma parcela pedida não existir no documento, deixe o campo correspondente como null — NUNCA calcule ou estime esse valor a partir de outra parcela.
 
 Devolva SOMENTE o JSON, nada mais.`;
 
+const RESIDENCIAL_PAYMENT_RULES = {
+  mapfre_residencial: "O rótulo da linha 2 é \"4x no Boleto\" e o da linha 3 é \"10x no Cartão de Crédito\", ambas marcadas como sem juros. Procure na tabela de \"Condições de Pagamento\" a linha \"4 Boletos - s/ entrada (sem juros)\" para preencher parcela_4x, e a linha \"CARTÃO CRÉDITO - 10 parc (Sem Juros)\" para preencher parcela_10x. valor_a_vista é o \"Prêmio Líquido\" (ou \"1 Boleto (à vista)\").",
+  hdi_residencial: "Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" como equivalente da linha 2, mas rotule-a \"4x no Carnê\" (não \"Boleto\"). Para a linha 3, use a coluna \"Cartão de Crédito\" (a única variante com valor preenchido, geralmente sob \"1ª a 7 dias\" — ignore a variante \"1ª no Ato\" quando estiver vazia/\"-\"), rotulada \"10x no Cartão de Crédito\". Ignore completamente a coluna \"Débito\" e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.).",
+  hdi_residencial_4x: "Esta cotação usa SOMENTE 2 linhas — Valor à Vista e uma parcela de 4x — NÃO inclua a linha de 10x de jeito nenhum: deixe parcela_10x_label e parcela_10x_valor como null. Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" para a linha de 4x, rotulada \"4x no Carnê\" (não \"Boleto\"). Ignore completamente a coluna \"Débito\", a coluna \"Cartão de Crédito\" inteira, e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.)."
+};
+
 const INSURER_HINTS_RESIDENCIAL = {
-  mapfre_residencial: "Cotação de Seguro MAPFRE Residencial (sistema oficial), com tabela de coberturas (LMI + Franquia + Prêmio) e diversas condições de pagamento."
+  mapfre_residencial: "Cotação de Seguro MAPFRE Residencial (sistema oficial), com tabela de coberturas (LMI + Franquia + Prêmio) e diversas condições de pagamento.",
+  hdi_residencial: "Orçamento HDI EM CASA — 3 faixas (à vista + 4x + 10x cartão). Tabela de pagamento em Débito/Carnê/Cartão (sem coluna Boleto); pode ter mais de um \"Local em Risco\" na mesma apólice.",
+  hdi_residencial_4x: "Orçamento HDI EM CASA — apenas 2 faixas (à vista + 4x), sem linha de cartão em 10x. Tabela de pagamento em Débito/Carnê/Cartão (sem coluna Boleto); pode ter mais de um \"Local em Risco\" na mesma apólice."
 };
 
 $('insurerResidencial').addEventListener('change', updateInsurerHintResidencial);
@@ -570,6 +581,8 @@ async function callClaude(userContent) {
 async function callClaudeResidencial(userContent) {
   const apiKey = $('apiKey').value.trim();
   if (!apiKey) throw new Error('Cole sua chave de API da Anthropic antes de continuar.');
+  const insurerKey = $('insurerResidencial').value;
+  const systemPrompt = SYSTEM_PROMPT_RESIDENCIAL.replace('__PAYMENT_RULE_RESIDENCIAL__', RESIDENCIAL_PAYMENT_RULES[insurerKey]);
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -577,7 +590,7 @@ async function callClaudeResidencial(userContent) {
       'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-5', max_tokens: 4096, system: SYSTEM_PROMPT_RESIDENCIAL,
+      model: 'claude-sonnet-5', max_tokens: 4096, system: systemPrompt,
       messages: [{ role: 'user', content: userContent }]
     })
   });
@@ -617,9 +630,11 @@ function preencherPreviewResidencial(d) {
   const tblParc = $('rTblParcelas');
   tblParc.innerHTML = '';
   const parcelas = [
-    { label: '4x no Boleto', valor: d.parcela_boleto_4x },
-    { label: '10x no Cartão de Crédito', valor: d.parcela_cartao_10x }
+    { label: d.parcela_4x_label || '4x no Boleto', valor: d.parcela_4x_valor }
   ];
+  if (d.parcela_10x_valor) {
+    parcelas.push({ label: d.parcela_10x_label || '10x no Cartão de Crédito', valor: d.parcela_10x_valor });
+  }
   parcelas.forEach(p => {
     const tr = document.createElement('tr');
     tr.innerHTML = '<td contenteditable="true">' + p.label + ' <span class="res-tag-sjuros">s/juros</span></td>' +
