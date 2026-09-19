@@ -64,7 +64,7 @@
   .toolbar .primary { background: var(--bordo); color: #fff; }
   .toolbar .ghost { background: #fff; color: var(--bordo); border: 2px solid var(--bordo); }
 
-  .page-shell { width: 210mm; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.15); background: #fff; }
+  .page-shell { width: 210mm; min-width: 210mm; box-shadow: 0 4px 24px rgba(0,0,0,.15); background: #fff; }
   .page { position: relative; width: 100%; min-height: 297mm; overflow: hidden; }
   .watermark-wrap {
     position: absolute; bottom: 8mm; left: 0; width: 100%; z-index: 0;
@@ -258,6 +258,7 @@
       <label>Seguradora</label>
       <select id="insurerCondominio">
         <option value="hdi_condominio">HDI Condomínio</option>
+        <option value="bradesco_condominio">Bradesco Condomínio</option>
       </select>
       <div class="hint" id="insurerHintCondominio"></div>
     </div>
@@ -574,11 +575,12 @@ Formato exato de saída:
 REGRAS GERAIS:
 1. Escreva o nome de cada cobertura por extenso, corrigindo erros de digitação comuns nesses documentos (ex: "Explosao"→"Explosão", "Eletricos"→"Elétricos", "Tubulacoes"→"Tubulações", "Veiculos"→"Veículos", "Responsabilidade Civil Condominio + Sindico"→"Responsabilidade Civil Condomínio + Síndico"), sem abreviações nem pontilhados.
 2. O campo "valor" de cada cobertura é sempre o LMI/capital segurado, NUNCA o valor do prêmio daquela linha. Se o documento não informar um LMI para a cobertura (mostrando "-"), use "Incluída" como valor.
-3. "tipo" deve ser derivado do campo "Ocupação" da seção "Local em Risco" do documento: se contiver "EXCLUSIVAMENTE RESIDENCIAL" → "Residencial"; se contiver "COMERCIAL" (sem "RESIDENCIAL") → "Comercial"; se contiver ambos ou "MISTO" → "Misto".
-4. "elevador": procure a pergunta "O Condomínio Possui Elevador?" (ou equivalente) no Questionário de Risco do documento e responda exatamente "Sim" ou "Não" conforme a resposta lá.
-5. franquias: inclua APENAS as coberturas que realmente têm franquia diferente de zero/"Sem Franquia" no documento. Quando uma cobertura tiver uma franquia dividida por sub-item (ex: "Incêndio/Raio/Explosão" onde só "Queda de Raio" tem franquia e o resto é "Sem franquia"), inclua uma única franquia para essa cobertura usando o percentual e mínimo do sub-item que tem valor, mencionando entre parênteses a qual sub-item se refere. Quando uma cobertura tiver franquias diferentes por categoria (ex: "RC Guarda Veículos" com valores diferentes para carro/moto/bicicleta), use o valor da categoria principal (a primeira/mais genérica listada, geralmente "Automóveis, Motocicletas e Motonetas") e ignore as variações mais específicas.
+3. "tipo" deve ser derivado do campo que descreve a ocupação/tipo do condomínio (aparece como "Ocupação" na HDI, ou como "Tipo de condomínio" / "Tipo de imóvel" / "Utilização do condomínio" na Bradesco): se contiver "EXCLUSIVAMENTE RESIDENCIAL" ou "Somente residencial" → "Residencial"; se contiver "COMERCIAL" (sem "RESIDENCIAL") → "Comercial"; se contiver ambos ou "MISTO" → "Misto".
+4. "elevador": procure a pergunta sobre elevador no documento (aparece como "O Condomínio Possui Elevador?" no Questionário de Risco da HDI, ou como "Edificação com elevador" nos Dados do Local de Risco da Bradesco) e responda exatamente "Sim" ou "Não" conforme a resposta lá.
+5. franquias: inclua APENAS as coberturas que realmente têm franquia diferente de zero/"Sem Franquia"/"Não há" no documento. Quando a coluna de franquia mostrar "(a)" (nota de rodapé), confira o texto da nota: se a nota disser algo como "Básica: Não há", essa cobertura NÃO tem franquia alguma — não a inclua. Se a nota detalhar um percentual/mínimo só para uma parte da cobertura (ex: só para Queda de Raio), inclua uma única franquia para essa cobertura usando o percentual e mínimo dessa parte, mencionando entre parênteses a qual parte se refere. Quando uma cobertura tiver franquias diferentes por categoria (ex: "RC Guarda Veículos" com valores diferentes para carro/moto/bicicleta), use o valor da categoria principal (a primeira/mais genérica listada, geralmente "Automóveis, Motocicletas e Motonetas") e ignore as variações mais específicas.
 6. NUNCA inclua coberturas de assistência (ex: "Assistência 24 Horas Condomínio", "Assist. 24 Horas", "Benefícios de Assistência") na lista "coberturas" — elas não são necessárias nessa modalidade e devem ser omitidas por completo, mesmo que apareçam no documento.
-7. Datas sempre no formato DD/MM/AAAA.
+7. Procure por uma cláusula de "Valor de Novo" (ex: "Cláusula Específica de Valor de Novo" na tabela de coberturas da HDI, ou "250 - Valor de Novo" na lista de "Cláusulas Ratificadas" da Bradesco) e inclua-a na lista "coberturas" como "Cláusula de Valor de Novo" com "valor": "Incluída" — mesmo quando ela aparecer só como uma cláusula ratificada, sem linha própria de LMI/prêmio na tabela principal.
+8. Datas sempre no formato DD/MM/AAAA.
 
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
 __PAYMENT_RULE_CONDOMINIO__
@@ -588,11 +590,13 @@ AVISO CRÍTICO: siga exatamente o número de parcelas pedido na regra acima. NUN
 Devolva SOMENTE o JSON, nada mais.`;
 
 const CONDOMINIO_PAYMENT_RULES = {
-  hdi_condominio: "O padrão Pozza para HDI Condomínio é: Valor do Seguro (1x, à vista) + 4x no Boleto sem juros + 6x no Boleto sem juros. Este documento NÃO tem coluna \"Boleto\" — ele tem \"Cartão de Crédito\" (geralmente vazia, toda \"-\"), \"Débito\" e \"Carnê\". Use a coluna \"Carnê\" (\"1ª no Ato\") como equivalente de \"Boleto\" para as linhas de 4x e 6x — rotule-as \"4x no Boleto\" e \"6x no Boleto\" mesmo assim (é o padrão interno da Pozza, não precisa bater com o nome da coluna do documento). valor_a_vista é a linha \"1x\" da tabela (que já inclui o I.O.F.)."
+  hdi_condominio: "O padrão Pozza para HDI Condomínio é: Valor do Seguro (1x, à vista) + 4x no Boleto sem juros + 6x no Boleto sem juros. Este documento NÃO tem coluna \"Boleto\" — ele tem \"Cartão de Crédito\" (geralmente vazia, toda \"-\"), \"Débito\" e \"Carnê\". Use a coluna \"Carnê\" (\"1ª no Ato\") como equivalente de \"Boleto\" para as linhas de 4x e 6x — rotule-as \"4x no Boleto\" e \"6x no Boleto\" mesmo assim (é o padrão interno da Pozza, não precisa bater com o nome da coluna do documento). valor_a_vista é a linha \"1x\" da tabela (que já inclui o I.O.F.).",
+  bradesco_condominio: "O padrão Pozza para Bradesco Condomínio é: Valor à Vista + 4x no Carnê sem juros + 6x no Carnê sem juros. Este documento tem uma tabela única \"CCB e/ou Carnê\" com colunas \"Com Entrada\" e \"Sem Entrada\" (cada uma com Qtd. Parcelas / 1ª parcela / Demais parcelas / Prêmio total). Use sempre o lado \"Sem Entrada\". Procure a linha \"Qtd. Parcelas\" = 4x para a linha 2 (rotulada \"4x no Carnê\", valor = \"Demais parcelas\" dessa linha) e a linha \"Qtd. Parcelas\" = 6x para a linha 3 (rotulada \"6x no Carnê\", valor = \"Demais parcelas\" dessa linha). Muitas cotações de prêmio baixo só oferecem a opção \"1x\" — nesse caso deixe parcela_4x_valor e parcela_10x_valor como null. valor_a_vista é o \"Prêmio total\" da seção \"Demonstrativo do Prêmio\" (que já inclui o IOF), não a linha \"1x\" da tabela de parcelamento isoladamente (ambos costumam bater, mas prefira o Demonstrativo do Prêmio)."
 };
 
 const INSURER_HINTS_CONDOMINIO = {
-  hdi_condominio: "Orçamento HDI Condomínio Tradicional — tabela de pagamento em Cartão de Crédito/Débito/Carnê (sem coluna Boleto); Ocupação do Local em Risco define Residencial/Misto/Comercial."
+  hdi_condominio: "Orçamento HDI Condomínio Tradicional — tabela de pagamento em Cartão de Crédito/Débito/Carnê (sem coluna Boleto); Ocupação do Local em Risco define Residencial/Misto/Comercial.",
+  bradesco_condominio: "Cotação Bradesco Seguro Condomínio — padrão à vista + 4x no Carnê + 6x no Carnê (sem juros); tabela única CCB e/ou Carnê. Tipo de condomínio e Edificação com elevador vêm nos Dados do Local de Risco."
 };
 
 $('insurerCondominio').addEventListener('change', updateInsurerHintCondominio);
@@ -776,15 +780,37 @@ function preencherPreviewResidencial(d) {
     franquiasDiv.appendChild(div);
   });
 
-  aplicarModoCompacto('pageRootResidencial', (d.coberturas || []).length + (d.franquias || []).length);
+  ajustarEspacamentoPagina('pageRootResidencial');
 }
 
-// Ativa um espaçamento mais compacto quando a cotação tem muitas linhas
-// (ex: condomínios com 10+ coberturas), pra continuar cabendo em 1 página
-// sem precisar apertar o espaçamento das cotações normais/menores.
-function aplicarModoCompacto(pageId, totalLinhas) {
+// Ajusta o espaçamento da página medindo o espaço real, em vez de "chutar" um
+// limite fixo de linhas: se sobrar espaço em branco depois de preencher tudo,
+// distribui esse espaço entre as 3 seções (Coberturas/Pagamento/Franquias);
+// se passar de 1 página, ativa um modo mais compacto pra continuar cabendo.
+const A4_ALTURA_PX = 1122; // 297mm a 96dpi
+function ajustarEspacamentoPagina(pageId) {
   const pageEl = $(pageId);
-  pageEl.classList.toggle('compact', totalLinhas > 21);
+  pageEl.classList.remove('compact');
+  const titulos = pageEl.querySelectorAll('.res-section-title');
+  titulos.forEach(el => { el.style.marginTop = ''; });
+
+  const alturaAtual = pageEl.scrollHeight;
+  const margemSeguranca = 20;
+
+  if (alturaAtual > A4_ALTURA_PX - margemSeguranca) {
+    // Não coube com espaçamento normal: aperta tudo pra garantir 1 página só.
+    pageEl.classList.add('compact');
+    return;
+  }
+
+  // Sobrou espaço: distribui entre as 3 seções (limitando pra não ficar
+  // um vão estranhamente grande em cotações bem curtas).
+  const sobra = (A4_ALTURA_PX - margemSeguranca) - alturaAtual;
+  const extraPorSecao = Math.min(sobra / Math.max(titulos.length, 1), 55);
+  titulos.forEach(el => {
+    const baseAtual = parseFloat(getComputedStyle(el).marginTop) || 0;
+    el.style.marginTop = (baseAtual + extraPorSecao) + 'px';
+  });
 }
 
 async function callClaudeCondominio(userContent) {
@@ -821,7 +847,8 @@ async function callClaudeCondominio(userContent) {
 }
 
 const CONDOMINIO_SEGURADORA_LABEL = {
-  hdi_condominio: 'HDI Seguros'
+  hdi_condominio: 'HDI Seguros',
+  bradesco_condominio: 'Bradesco Seguros'
 };
 
 function preencherPreviewCondominio(d) {
@@ -869,7 +896,7 @@ function preencherPreviewCondominio(d) {
     franquiasDiv.appendChild(div);
   });
 
-  aplicarModoCompacto('pageRootCondominio', (d.coberturas || []).length + (d.franquias || []).length);
+  ajustarEspacamentoPagina('pageRootCondominio');
 }
 
 $('extractBtn').addEventListener('click', async () => {
@@ -973,7 +1000,15 @@ function preencherPreview(d) {
   });
 }
 
-$('downloadBtn').addEventListener('click', () => window.print());
+$('downloadBtn').addEventListener('click', () => {
+  // Recalcula o espaçamento na hora de imprimir também — cobre o caso de a
+  // pessoa ter editado algum texto manualmente (mudando a altura do conteúdo)
+  // depois da extração original.
+  const tipo = $('tipoSeguro').value;
+  if (tipo === 'residencial') ajustarEspacamentoPagina('pageRootResidencial');
+  if (tipo === 'condominio') ajustarEspacamentoPagina('pageRootCondominio');
+  window.print();
+});
 
 $('resetBtn').addEventListener('click', () => {
   uploadedFile = null; $('filename').textContent = ''; fileInput.value = '';
