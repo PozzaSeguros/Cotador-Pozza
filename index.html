@@ -141,31 +141,31 @@
   }
   .res-valor { font-size: 17px; color: var(--texto); }
   .res-valor span[contenteditable] { outline: none; }
-  .res-content { padding: 8px 50px 34px 50px; position: relative; z-index: 1; }
+  .res-content { padding: 6px 50px 16px 50px; position: relative; z-index: 1; }
   .res-section-title {
     font-size: 14.5px; font-weight: bold; color: var(--bordo); text-transform: uppercase;
-    letter-spacing: .5px; margin: 38px 0 16px 0; border-bottom: 2px solid var(--bordo); padding-bottom: 8px;
+    letter-spacing: .5px; margin: 28px 0 13px 0; border-bottom: 2px solid var(--bordo); padding-bottom: 7px;
   }
-  .res-section-title:first-of-type { margin-top: 18px; }
+  .res-section-title:first-of-type { margin-top: 14px; }
   .res-coberturas { width: 100%; border-collapse: collapse; }
   .res-coberturas tr { border-bottom: 1px solid var(--cinza-300); }
-  .res-coberturas td { padding: 13px 6px; font-size: 14px; outline: none; }
+  .res-coberturas td { padding: 9px 6px; font-size: 13.5px; outline: none; }
   .res-coberturas td:last-child { text-align: right; font-weight: bold; white-space: nowrap; }
   .res-pagamento-destaque {
     display: flex; justify-content: space-between; align-items: center; background: var(--bordo);
-    color: #fff; padding: 17px 20px; border-radius: 4px; font-size: 15.5px; font-weight: bold; margin-bottom: 12px;
+    color: #fff; padding: 13px 20px; border-radius: 4px; font-size: 15.5px; font-weight: bold; margin-bottom: 8px;
   }
   .res-pagamento-destaque span:last-child { outline: none; }
   .res-parcelas { width: 100%; border-collapse: collapse; }
   .res-parcelas tr { border-bottom: 1px solid var(--cinza-300); }
-  .res-parcelas td { padding: 13px 6px; font-size: 14px; outline: none; }
+  .res-parcelas td { padding: 9px 6px; font-size: 13.5px; outline: none; }
   .res-parcelas td:last-child { text-align: right; font-weight: bold; white-space: nowrap; }
   .res-tag-sjuros {
     font-size: 10px; font-weight: bold; color: var(--bordo); border: 1px solid var(--bordo);
     border-radius: 3px; padding: 1px 6px; margin-left: 8px;
   }
   .res-franquia-item {
-    font-size: 13px; line-height: 1.65; margin-bottom: 14px; padding-left: 14px;
+    font-size: 12.5px; line-height: 1.5; margin-bottom: 8px; padding-left: 14px;
     border-left: 2px solid var(--bordo-claro); outline: none;
   }
   .res-franquia-item b { color: var(--bordo); }
@@ -784,7 +784,7 @@ function preencherPreviewResidencial(d) {
 // sem precisar apertar o espaçamento das cotações normais/menores.
 function aplicarModoCompacto(pageId, totalLinhas) {
   const pageEl = $(pageId);
-  pageEl.classList.toggle('compact', totalLinhas > 15);
+  pageEl.classList.toggle('compact', totalLinhas > 21);
 }
 
 async function callClaudeCondominio(userContent) {
