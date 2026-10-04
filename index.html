@@ -300,6 +300,7 @@
       <select id="insurerEmpresarial">
         <option value="mapfre_empresarial">MAPFRE Empresarial (à vista + 4x boleto + 10x cartão)</option>
         <option value="mapfre_empresarial_4x">MAPFRE Empresarial (à vista + 4x boleto apenas)</option>
+        <option value="hdi_empresarial">HDI Empresarial (à vista + 4x boleto + 6x boleto)</option>
       </select>
       <div class="hint" id="insurerHintEmpresarial"></div>
     </div>
@@ -745,7 +746,7 @@ Formato exato de saída:
   "valor_a_vista": "R$ X.XXX,XX",
   "parcela_4x_label": "4x no Boleto",
   "parcela_4x_valor": "R$ XXX,XX",
-  "parcela_10x_label": "10x no Cartão de Crédito",
+  "parcela_10x_label": "Rótulo da segunda parcela pedida na regra de pagamento",
   "parcela_10x_valor": "R$ XXX,XX",
   "franquias": [
     {"cobertura": "Nome exatamente igual ao usado em coberturas", "percentual": "15%", "franquia": "R$ 1.500,00"}
@@ -753,28 +754,46 @@ Formato exato de saída:
 }
 
 REGRAS GERAIS:
-1. "cliente" vem do campo "Nome do Segurado", em MAIÚSCULAS. Corrija apenas acentuação óbvia de palavras comuns (ex: SALAO vira SALÃO). "documento" vem do campo "CPF/CNPJ" do segurado.
-2. Datas sempre no formato DD/MM/AAAA. "vigencia_inicio" e "vigencia_fim" vêm do campo "Vigência" (ex: "17/10/2026 a 17/10/2027"). "validade" vem de "Validade da Cotação".
-3. "atividade": use a descrição do campo "GRUPO" do local de risco, SEM o código (ex: "C1 - CABELEREIROS/SALAO DE BELEZA/ESTETICA" vira "Cabeleireiros/Salão de Beleza/Estética"), com acentuação correta.
-4. "endereco": monte numa única linha no formato "Rua, Número – Complemento, Bairro – Cidade/UF • CEP 00000-000 • Localização" usando os campos LOCAL DE RISCO, NÚMERO, COMPLEMENTO, BAIRRO, CIDADE, UF, CEP e LOCALIZAÇÃO (ex: "R La Salle, 753 – Superior E, São Pelegrino – Caxias do Sul/RS • CEP 95020-100 • Térreo"), com acentuação correta. "valor_risco" vem de "VALOR EM RISCO".
-5. "coberturas": use a tabela "Coberturas e LMI por Local" (colunas: Coberturas Básicas/Adicionais | Lim. Max. Ind. | Prêmio R$ | P.O.S.(%) | Franquia | Desconto por Multiplicação de Franquias). Liste TODAS as coberturas, uma linha cada, juntando nomes que quebram em duas linhas e escrevendo por extenso (ex: "Impacto Veículos Terrestres e Queda Aeronaves" vira "Impacto de Veículos Terrestres e Queda de Aeronaves"). O campo "valor" é sempre o "Lim. Max. Ind." com "R$ " na frente (ex: "R$ 500.000,00"), ou o texto exato quando não for número (ex: "Contratada"). NUNCA use o valor do prêmio daquela linha.
-6. "franquias": inclua APENAS as coberturas que têm P.O.S.(%) e/ou Franquia preenchidos no documento (ignore a coluna "Desconto por Multiplicação de Franquias"). "percentual" é o número da coluna P.O.S.(%) com "%" (ex: "15%") e "franquia" é o valor da coluna Franquia (ex: "R$ 1.500,00"). ATENÇÃO: quando a Franquia for em DIAS (ex: "7 dias" em Despesas Fixas), o número da coluna P.O.S. NÃO é percentual — use "percentual": "—" e "franquia": "7 dias". Nunca invente franquia para cobertura que não tiver.
+1. "cliente" é o nome do segurado, em MAIÚSCULAS. Corrija apenas acentuação óbvia de palavras comuns (ex: SALAO vira SALÃO, ESTETICA vira ESTÉTICA). "documento" é o CPF/CNPJ do segurado.
+2. Datas sempre no formato DD/MM/AAAA.
+3. "atividade": use a descrição da atividade/ocupação do local de risco SEM o código numérico (ex: "C1 - CABELEREIROS/SALAO DE BELEZA/ESTETICA" vira "Cabeleireiros/Salão de Beleza/Estética"; "700371 - SALAO, INSTITUTO DE BELEZA/BARBEARIA" vira "Salão, Instituto de Beleza/Barbearia"), com acentuação correta e capitalização normal (não tudo em maiúsculas).
+4. "endereco": monte numa única linha no formato "Rua, Número – Complemento, Bairro – Cidade/UF • CEP 00000-000 • Localização" (a parte "Localização", ex: "Térreo", só entra se o documento informar). Use SEMPRE o endereço do LOCAL EM RISCO (nunca o endereço de cobrança), com acentuação correta (ex: "R La Salle, 753 – Superior E, São Pelegrino – Caxias do Sul/RS • CEP 95020-100 • Térreo").
+5. "coberturas": liste TODAS as coberturas da tabela de coberturas contratadas, uma linha cada, juntando nomes que quebram em duas linhas e escrevendo por extenso, sem abreviações e com acentuação correta (ex: "Impacto Veículos Terrestres e Queda Aeronaves" vira "Impacto de Veículos Terrestres e Queda de Aeronaves"; "Incênd/Raio/Explos/Queda Aeronave/Fumaça" vira "Incêndio / Raio / Explosão / Queda de Aeronave / Fumaça"; "Vazamento de Tanques e Rupt. Tubulacoes" vira "Vazamento de Tanques e Ruptura de Tubulações"). O campo "valor" é sempre o LMI (limite máximo de indenização) com "R$ " na frente (ex: "R$ 500.000,00"), ou o texto exato quando não for número (ex: "Contratada"). Se o LMI aparecer como "-" (vazio), use "Incluída". NUNCA use o valor do prêmio daquela linha.
+6. "franquias": inclua APENAS as coberturas que realmente têm franquia/participação obrigatória no documento. "percentual" é o percentual (ex: "15%") e "franquia" é o valor em R$ (ex: "R$ 1.500,00") ou o prazo (ex: "7 dias"). Quando a franquia for em DIAS, o número ao lado NÃO é percentual — use "percentual": "—". Quando a franquia valer só para uma parte da cobertura (ex: "Queda de Raio"), use o nome da cobertura seguido de "(apenas ...)" entre parênteses. Nunca invente franquia para cobertura que não tiver.
+
+REGRAS ESPECÍFICAS DESTA SEGURADORA (onde achar cada campo):
+__INSURER_RULE_EMPRESARIAL__
 
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
 __PAYMENT_RULE_EMPRESARIAL__
 
-AVISO CRÍTICO: siga exatamente o número de parcelas pedido na regra acima. NUNCA copie a tabela de parcelamento inteira do documento — ela lista dezenas de opções e só as pedidas devem ser usadas. Quando a regra disser para não incluir a linha de 10x, deixe parcela_10x_label e parcela_10x_valor como null.
+AVISO CRÍTICO: siga exatamente o número de parcelas pedido na regra acima. NUNCA copie a tabela de parcelamento inteira do documento — ela pode listar dezenas de opções e só as pedidas devem ser usadas. Quando a regra disser para não incluir a segunda linha, deixe parcela_10x_label e parcela_10x_valor como null.
 
 Devolva SOMENTE o JSON, nada mais.`;
 
+const EMPRESARIAL_INSURER_RULES = {
+  mapfre_empresarial: "Documento \"Cotação de Seguro MAPFRE Empresarial\". cliente: \"Nome do Segurado\"; documento: \"CPF/CNPJ\" do segurado. vigencia: campo \"Vigência\" em \"Dados do Seguro\" (ex: \"17/10/2026 a 17/10/2027\"). validade: \"Validade da Cotação\". atividade: descrição do campo \"GRUPO\" do local de risco. endereco: campos LOCAL DE RISCO, NÚMERO, COMPLEMENTO, BAIRRO, CIDADE, UF, CEP e LOCALIZAÇÃO. valor_risco: \"VALOR EM RISCO\". coberturas: tabela \"Coberturas e LMI por Local\" (colunas: Coberturas Básicas/Adicionais | Lim. Max. Ind. | Prêmio R$ | P.O.S.(%) | Franquia | Desconto por Multiplicação de Franquias) — \"valor\" é a coluna \"Lim. Max. Ind.\" (ou \"Contratada\"), nunca o Prêmio. franquias: use as colunas P.O.S.(%) (percentual, ex: \"15%\") e Franquia (valor, ex: \"R$ 1.500,00\"), só das coberturas que as têm preenchidas; ignore a coluna \"Desconto por Multiplicação de Franquias\". ATENÇÃO: quando a Franquia for em DIAS (ex: \"7 dias\" em Despesas Fixas), o número da coluna P.O.S. NÃO é percentual — use percentual \"—\".",
+  hdi_empresarial: "Documento \"HDI EMPRESARIAL\" (Orçamento). cliente: campo \"Segurado\" no topo da página. documento: \"CPF/CNPJ\" em \"Informações de Cobrança\". vigencia: \"Vigência: DD/MM/AAAA até DD/MM/AAAA\" em \"Informações Gerais do Orçamento\". validade: a data final de \"Esta cotação tem validade de 30 dia(s), até DD/MM/AAAA\". atividade: campo \"Ocupação\" em DETALHES DO LOCAL, sem o código. endereco: use os dados do bloco \"LOCAL EM RISCO\" (Endereço, Nro, Complemento, Bairro, Cidade, UF, CEP) — NÃO o \"End. Cobrança\". valor_risco: \"Valor em risco D. Materiais\". coberturas: tabela \"COBERTURAS CONTRATADAS\" (colunas Coberturas | L.M.I (R$) | Prêmios (R$)) — \"valor\" é o L.M.I (quando \"-\", use \"Incluída\"); inclua todas as linhas, inclusive \"Assistência Empresarial Essencial\" e \"Cláusula Específica de Valor de Novo\"; ignore \"PRÊMIO LÍQUIDO DO LOCAL\", CUSTO e I.O.F. franquias: seção \"PARTICIPAÇÃO OBRIGATÓRIA\" (colunas Coberturas | Franquias Obrigatórias), cujo texto é do tipo \"10.00% sobre os prejuízos indenizáveis com mínimo de R$ 1.000,00\" — percentual = \"10%\" e franquia = \"R$ 1.000,00\". Cobertura sem texto de franquia (ex: Assistência) NÃO entra. Quando o texto citar só uma parte da cobertura (ex: \"Queda de Raio 10% dos prejuízos indenizáveis com minimo de R$ 900,00\" na linha de Incêndio/Raio/...), use o nome da cobertura + \"(apenas Queda de Raio)\"."
+};
+EMPRESARIAL_INSURER_RULES.mapfre_empresarial_4x = EMPRESARIAL_INSURER_RULES.mapfre_empresarial;
+
+// Segunda linha de parcelamento por seguradora (nº de parcelas e rótulo). n2: null = só à vista + 4x.
+const EMPRESARIAL_PARCELAS = {
+  mapfre_empresarial:    { n2: 10,   label2: '10x no Cartão de Crédito' },
+  mapfre_empresarial_4x: { n2: null, label2: '' },
+  hdi_empresarial:       { n2: 6,    label2: '6x no Boleto' }
+};
+
 const EMPRESARIAL_PAYMENT_RULES = {
   mapfre_empresarial: "O padrão Pozza para MAPFRE Empresarial é: Valor à Vista + 4x no Boleto sem juros + 10x no Cartão de Crédito sem juros. valor_a_vista é o \"Prêmio Total\" (igual à linha \"1 Boleto (à vista)\"). Para parcela_4x_valor use a linha \"Boletos (Sem entrada) - 4 Boletos - s/ entrada (sem juros)\" (rótulo \"4x no Boleto\"). O documento NÃO traz linha de cartão de crédito: para parcela_10x_valor use o valor da linha \"Débito em Conta - 10 Deb CC (sem juros)\" (é o mesmo valor de \"10 Boletos - s/ entrada (sem juros)\"), com rótulo \"10x no Cartão de Crédito\". Ignore todas as demais linhas (entrada + boleto, com juros, etc.).",
+  hdi_empresarial: "O padrão Pozza para HDI Empresarial é: Valor à Vista + 4x no Boleto sem juros + 6x no Boleto sem juros. Este documento NÃO tem coluna \"Boleto\" — a tabela \"Opções de Pagamento (R$)\" tem as colunas Plano | Cartão de Crédito | Débito (1ª no Ato / 1ª a 30 dias / Melhor Data) | Carnê (1ª no Ato / 1ª a 7 dias). Use a coluna \"Carnê\" (a que tem valores, geralmente \"1ª a 7 dias\") como equivalente de Boleto e rotule as linhas \"4x no Boleto\" e \"6x no Boleto\" (padrão interno da Pozza). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.). parcela_4x_valor é a linha 4x da coluna Carnê. Para a segunda linha (use os campos parcela_10x_label = \"6x no Boleto\" e parcela_10x_valor) pegue a linha 6x da coluna Carnê; se a tabela não tiver linha de 6x (costuma ir só até 5x), deixe parcela_10x_valor como null — o sistema calcula.",
   mapfre_empresarial_4x: "Esta cotação usa SOMENTE 2 linhas — Valor à Vista e uma parcela de 4x — NÃO inclua a linha de 10x de jeito nenhum: deixe parcela_10x_label e parcela_10x_valor como null. valor_a_vista é o \"Prêmio Total\" (igual à linha \"1 Boleto (à vista)\"). Para parcela_4x_valor use a linha \"Boletos (Sem entrada) - 4 Boletos - s/ entrada (sem juros)\" (rótulo \"4x no Boleto\"). Ignore todas as demais linhas da tabela de pagamento."
 };
 
 const INSURER_HINTS_EMPRESARIAL = {
   mapfre_empresarial: "Cotação de Seguro MAPFRE Empresarial (sistema oficial) — padrão à vista + 4x no Boleto + 10x no Cartão de Crédito, sem juros. O cartão não vem no PDF: usa-se a parcela de 10x sem juros.",
-  mapfre_empresarial_4x: "Cotação de Seguro MAPFRE Empresarial (sistema oficial) — apenas à vista + 4x no Boleto, sem juros."
+  mapfre_empresarial_4x: "Cotação de Seguro MAPFRE Empresarial (sistema oficial) — apenas à vista + 4x no Boleto, sem juros.",
+  hdi_empresarial: "Orçamento HDI Empresarial — à vista + 4x no Boleto + 6x no Boleto, sem juros. A tabela de pagamento tem Cartão/Débito/Carnê (sem coluna Boleto) e costuma ir só até 5x: o 6x é calculado (valor à vista ÷ 6)."
 };
 
 $('insurerEmpresarial').addEventListener('change', updateInsurerHintEmpresarial);
@@ -789,7 +808,7 @@ async function callClaudeEmpresarial(userContent) {
   const apiKey = $('apiKey').value.trim();
   if (!apiKey) throw new Error('Cole sua chave de API da Anthropic antes de continuar.');
   const insurerKey = $('insurerEmpresarial').value;
-  const systemPrompt = SYSTEM_PROMPT_EMPRESARIAL.replace('__PAYMENT_RULE_EMPRESARIAL__', EMPRESARIAL_PAYMENT_RULES[insurerKey]);
+  const systemPrompt = SYSTEM_PROMPT_EMPRESARIAL.replace('__INSURER_RULE_EMPRESARIAL__', EMPRESARIAL_INSURER_RULES[insurerKey]).replace('__PAYMENT_RULE_EMPRESARIAL__', EMPRESARIAL_PAYMENT_RULES[insurerKey]);
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -872,16 +891,16 @@ function preencherPreviewEmpresarial(d) {
   });
 
   // Parcelas: se a IA não devolveu o valor, calcula pela divisão exata do valor à vista
-  // (as parcelas sem juros da Mapfre são exatamente prêmio total ÷ nº de parcelas).
+  // (as parcelas sem juros são exatamente valor à vista ÷ nº de parcelas).
   const total = parseMoedaBR(d.valor_a_vista);
-  const quer10x = $('insurerEmpresarial').value !== 'mapfre_empresarial_4x';
+  const cfg = EMPRESARIAL_PARCELAS[$('insurerEmpresarial').value] || EMPRESARIAL_PARCELAS.mapfre_empresarial;
   let v4 = d.parcela_4x_valor;
-  let v10 = quer10x ? d.parcela_10x_valor : null;
+  let v2 = cfg.n2 ? d.parcela_10x_valor : null;
   if (!v4 && !isNaN(total) && total > 0) v4 = fmtMoedaBR(total / 4);
-  if (quer10x && !v10 && !isNaN(total) && total > 0) v10 = fmtMoedaBR(total / 10);
+  if (cfg.n2 && !v2 && !isNaN(total) && total > 0) v2 = fmtMoedaBR(total / cfg.n2);
   const parcelas = [];
-  if (v4) parcelas.push({ label: d.parcela_4x_label || '4x no Boleto', valor: v4 });
-  if (v10) parcelas.push({ label: d.parcela_10x_label || '10x no Cartão de Crédito', valor: v10 });
+  if (v4) parcelas.push({ label: '4x no Boleto', valor: v4 });
+  if (v2) parcelas.push({ label: cfg.label2, valor: v2 });
   const tblParc = $('eTblParcelas');
   tblParc.innerHTML = '';
   parcelas.forEach(p => {
