@@ -215,6 +215,9 @@
   .page.compact .emp-block { margin-bottom: 9px; }
   .page.compact table.emp-tbl td { padding: 3px 6px; font-size: 11.5px; }
   .page.compact table.emp-tbl.emp-parc td { padding: 6px 6px; }
+  .res-content table.emp-tbl th { font-size: 10.5px; padding: 6px 6px; }
+  .res-content table.emp-tbl td { font-size: 12.5px; padding: 6px 6px; }
+  .page.compact .res-content table.emp-tbl td { padding: 4px 6px; font-size: 12px; }
 
   @media print {
     body { background: #fff; }
@@ -638,7 +641,7 @@ REGRAS GERAIS:
 4. franquias: inclua APENAS as coberturas que realmente têm franquia diferente de zero/"-"/"Sem Franquia" no documento. Nunca invente uma franquia para cobertura que não tiver.
 5. Datas sempre no formato DD/MM/AAAA.
 6. Se o documento tiver mais de um "Local em Risco" (mais de um imóvel na mesma apólice) com as MESMAS coberturas e valores repetidos para cada local, NÃO duplique as linhas de cobertura — liste cada cobertura UMA ÚNICA VEZ com o LMI de um local (já que é igual em todos), e mencione a quantidade de imóveis no campo "imovel" (ex: "Casa Habitual (2 imóveis)"). O prêmio total/valor à vista, porém, já vem consolidado somando todos os locais — use o "Prêmio Líquido Total" do documento (ou equivalente), não o prêmio de um local isolado.
-7. Alguns documentos (ex: Bradesco) mostram o percentual da franquia numa coluna separada chamada "POS" ou "POS (% prejuízo)" e o valor mínimo em reais numa coluna "Franquia" — nesse caso monte o texto da franquia normalmente como "{percentual} dos prejuízos indenizáveis, com mínimo de {valor}." combinando as duas colunas. Se a coluna de percentual disser "Não há" ou estiver vazia/"-", essa cobertura NÃO tem franquia — não a inclua. Se a cobertura "Básica" tiver uma nota de rodapé (ex: "(a)") detalhando percentuais e mínimos só para algumas partes dela (ex: só para Fumaça/Queda de Aeronaves/Impacto de Veículos), inclua uma franquia para "Básica" usando exatamente esse percentual e esse mínimo da nota, e não invente franquia para as partes da nota que dizem "Não há".
+7. Alguns documentos (ex: Bradesco) mostram o percentual da franquia numa coluna separada chamada "POS" ou "POS (% prejuízo)" e o valor mínimo em reais numa coluna "Franquia" — nesse caso preencha \"percentual\" com o valor da coluna POS (ex: \"10%\") e \"minimo\" com o valor da coluna Franquia, combinando as duas colunas. Se a coluna de percentual disser "Não há" ou estiver vazia/"-", essa cobertura NÃO tem franquia — não a inclua. Se a cobertura "Básica" tiver uma nota de rodapé (ex: "(a)") detalhando percentuais e mínimos só para algumas partes dela (ex: só para Fumaça/Queda de Aeronaves/Impacto de Veículos), inclua uma franquia para "Básica" usando exatamente esse percentual e esse mínimo da nota, e não invente franquia para as partes da nota que dizem "Não há".
 
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
 __PAYMENT_RULE_RESIDENCIAL__
@@ -823,6 +826,29 @@ function fmtMoedaBR(n) {
   return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function escHtml(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// Franquia em tabela (Cobertura | P.O.S. (%) | Franquia) — mesmo padrão visual do Empresarial.
+// Usado no Residencial e no Condomínio, onde o valor é o mínimo da franquia.
+function renderFranquiasTabela(containerId, franquias) {
+  const box = $(containerId);
+  box.innerHTML = '';
+  if (!franquias || !franquias.length) return;
+  const tbl = document.createElement('table');
+  tbl.className = 'emp-tbl';
+  tbl.innerHTML = '<thead><tr><th>Cobertura</th><th class="c" style="text-align:center;">P.O.S. (%)</th><th class="r" style="text-align:right;">Franquia (mínimo)</th></tr></thead>';
+  const tb = document.createElement('tbody');
+  franquias.forEach(f => {
+    let pct = String(f.percentual == null || f.percentual === '' ? '—' : f.percentual).trim();
+    if (/^\d+([.,]\d+)?$/.test(pct)) pct += '%';
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td contenteditable="true">' + escHtml(f.cobertura) + '</td>' +
+                   '<td class="c" contenteditable="true">' + escHtml(pct) + '</td>' +
+                   '<td class="r" contenteditable="true">' + escHtml(f.minimo || f.franquia || '—') + '</td>';
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  box.appendChild(tbl);
+}
 
 function preencherPreviewEmpresarial(d) {
   const soDigitos = String(d.documento || '').replace(/\D/g, '');
@@ -1059,16 +1085,7 @@ function preencherPreviewResidencial(d) {
     tblParc.appendChild(tr);
   });
 
-  const franquiasDiv = $('rFranquias');
-  franquiasDiv.innerHTML = '';
-  (d.franquias || []).forEach(f => {
-    const div = document.createElement('div');
-    div.className = 'res-franquia-item';
-    div.contentEditable = 'true';
-    div.innerHTML = '<b>' + (f.cobertura || '') + ':</b> ' + (f.percentual || '') +
-                     ' dos prejuízos indenizáveis, com mínimo de ' + (f.minimo || '') + '.';
-    franquiasDiv.appendChild(div);
-  });
+  renderFranquiasTabela('rFranquias', d.franquias);
 
   ajustarEspacamentoPagina('pageRootResidencial');
 }
@@ -1161,16 +1178,7 @@ function preencherPreviewCondominio(d) {
     tblParc.appendChild(tr);
   });
 
-  const franquiasDiv = $('cFranquias');
-  franquiasDiv.innerHTML = '';
-  (d.franquias || []).forEach(f => {
-    const div = document.createElement('div');
-    div.className = 'res-franquia-item';
-    div.contentEditable = 'true';
-    div.innerHTML = '<b>' + (f.cobertura || '') + ':</b> ' + (f.percentual || '') +
-                     ' dos prejuízos indenizáveis, com mínimo de ' + (f.minimo || '') + '.';
-    franquiasDiv.appendChild(div);
-  });
+  renderFranquiasTabela('cFranquias', d.franquias);
 
   ajustarEspacamentoPagina('pageRootCondominio');
 }
