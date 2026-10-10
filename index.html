@@ -244,6 +244,22 @@
   .res-titulo { color: var(--bordo); }
   .res-logo { width: 140px; }
   .page.compact .res-header-band { padding: 14px 0 10px 0; }
+
+  .res-coberturas tr.res-item-head { border-bottom: none; }
+  .res-coberturas tr.res-item-head td { background: var(--cinza-100); color: var(--bordo); font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; padding: 7px 8px; border-left: 4px solid var(--bordo); text-align: left; }
+  .res-item-head-f { font-size: 11.5px; font-weight: bold; color: var(--bordo); text-transform: uppercase; letter-spacing: .6px; margin: 8px 0 3px 0; outline: none; }
+  .page.compact .res-coberturas tr.res-item-head td { padding: 5px 8px; }
+
+  .page.multi-item .res-coberturas td { padding: 4px 6px; font-size: 12px; }
+  .page.multi-item .res-coberturas tr.res-item-head td { padding: 4px 8px; font-size: 11px; }
+  .page.multi-item .res-content { padding-top: 8px; padding-bottom: 12px; }
+  .page.multi-item .res-parcelas td { padding: 6px 6px; font-size: 12.5px; }
+  .page.multi-item .res-pagamento-destaque { padding: 9px 18px; margin-bottom: 4px; }
+  .page.multi-item .res-meta-row { padding: 8px 0 10px 0; }
+  .page.multi-item .res-section-title { margin-bottom: 4px; }
+
+  .res-coberturas tr.res-item-gap { border-bottom: none; }
+  .res-coberturas tr.res-item-gap td { padding: 0 !important; height: 16px; }
 </style>
 </head>
 <body>
@@ -663,8 +679,11 @@ Formato exato de saída:
   "parcela_10x_valor": "R$ XXX,XX",
   "franquias": [
     {"cobertura": "Nome exatamente igual ao usado em coberturas", "percentual": "10%", "minimo": "R$ XXX,XX"}
-  ]
+  ],
+  "itens": null
 }
+
+(O campo "itens" só é usado no caso da REGRA 8 — vários itens/locais com coberturas DIFERENTES; nos demais casos deixe "itens": null.)
 
 REGRAS GERAIS:
 1. Escreva o nome de cada cobertura por extenso, igual ao documento original, sem abreviações nem pontilhados (ex: "Cobertura Básica: Incêndio / Raio / Explosão / Queda de Aeronaves / Fumaça", "Responsabilidade Civil Familiar", "Roubo e Furto de Bens Mediante Arrombamento", "Vendaval, Granizo e Impacto de Veículos Terrestre", "Danos Elétricos e Queda de Raio Fora do Terreno Segurado", "Rompimento de Tubulações Oriundas do Imóvel Segurado", "Perda ou Pagamento de Aluguel", "Quebra de Vidros, Espelhos e Aparelhos Sanitários", "Recomposição de Documentos", "Incêndio", "Cobertura de Assistências Essenciais", "Cláusula Específica de Valor Novo").
@@ -675,6 +694,9 @@ REGRAS GERAIS:
 6. Se o documento tiver mais de um "Local em Risco" (mais de um imóvel na mesma apólice) com as MESMAS coberturas e valores repetidos para cada local, NÃO duplique as linhas de cobertura — liste cada cobertura UMA ÚNICA VEZ com o LMI de um local (já que é igual em todos), e mencione a quantidade de imóveis no campo "imovel" (ex: "Casa Habitual (2 imóveis)"). O prêmio total/valor à vista, porém, já vem consolidado somando todos os locais — use o "Prêmio Líquido Total" do documento (ou equivalente), não o prêmio de um local isolado.
 7. Alguns documentos (ex: Bradesco) mostram o percentual da franquia numa coluna separada chamada "POS" ou "POS (% prejuízo)" e o valor mínimo em reais numa coluna "Franquia" — nesse caso preencha \"percentual\" com o valor da coluna POS (ex: \"10%\") e \"minimo\" com o valor da coluna Franquia, combinando as duas colunas. Se a coluna de percentual disser "Não há" ou estiver vazia/"-", essa cobertura NÃO tem franquia — não a inclua. Se a cobertura "Básica" tiver uma nota de rodapé (ex: "(a)") detalhando percentuais e mínimos só para algumas partes dela (ex: só para Fumaça/Queda de Aeronaves/Impacto de Veículos), inclua uma franquia para "Básica" usando exatamente esse percentual e esse mínimo da nota, e não invente franquia para as partes da nota que dizem "Não há".
 
+8. VÁRIOS ITENS COM COBERTURAS DIFERENTES: se o documento tiver mais de um item/local de risco ("N° do Item: 1", "N° do Item: 2"...) e as coberturas ou limites forem DIFERENTES entre eles (cobertura que existe só em um item, ou LMI diferente), use este formato: deixe "coberturas": [] e "franquias": [] vazios e preencha "itens" com um objeto por item, na ordem do documento: {"titulo": "Item 1 — Apartamento Habitual", "coberturas": [{"nome": "...", "valor": "R$ ..."}], "franquias": [{"cobertura": "...", "percentual": "10%", "minimo": "R$ 500,00"}]}. Cada item lista TODAS as suas coberturas (LMI, nunca o prêmio) e só as suas franquias. Em "imovel" escreva o tipo do risco seguido da quantidade (ex: "Apartamento Habitual (2 itens)"). O pagamento é UM SÓ para a apólice toda (prêmio total consolidado dos itens). Se os itens tiverem coberturas e valores IDÊNTICOS, use a regra 6 (sem "itens").
+9. Quando a primeira parcela e as demais forem diferentes (ex: "162,78 | 162,76"), use o MAIOR dos dois valores.
+
 REGRA ESPECÍFICA DE CONDIÇÕES DE PAGAMENTO PARA ESTA COTAÇÃO:
 __PAYMENT_RULE_RESIDENCIAL__
 
@@ -683,7 +705,7 @@ AVISO CRÍTICO: siga exatamente o número de parcelas pedido na regra acima — 
 Devolva SOMENTE o JSON, nada mais.`;
 
 const RESIDENCIAL_PAYMENT_RULES = {
-  mapfre_residencial: "O rótulo da linha 2 é \"4x no Boleto\" e o da linha 3 é \"10x no Cartão de Crédito\", ambas marcadas como sem juros. Procure na tabela de \"Condições de Pagamento\" a linha \"4 Boletos - s/ entrada (sem juros)\" para preencher parcela_4x, e a linha \"CARTÃO CRÉDITO - 10 parc (Sem Juros)\" para preencher parcela_10x. valor_a_vista é o \"Prêmio Líquido\" (ou \"1 Boleto (à vista)\").",
+  mapfre_residencial: "O rótulo da linha 2 é \"4x no Boleto\" e o da linha 3 é \"10x no Cartão de Crédito\", ambas marcadas como sem juros. Procure na tabela de \"Condições de Pagamento\" a linha \"4 Boletos - s/ entrada (sem juros)\" para preencher parcela_4x, e a linha \"CARTÃO CRÉDITO - 10 parc (Sem Juros)\" para preencher parcela_10x. valor_a_vista é o valor da linha \"1 Boleto (à vista)\" (= Prêmio Total, já com IOF; em cotações com vários itens é o total consolidado de todos os itens).",
   hdi_residencial: "Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" como equivalente da linha 2, mas rotule-a \"4x no Carnê\" (não \"Boleto\"). Para a linha 3, use a coluna \"Cartão de Crédito\" (a única variante com valor preenchido, geralmente sob \"1ª a 7 dias\" — ignore a variante \"1ª no Ato\" quando estiver vazia/\"-\"), rotulada \"10x no Cartão de Crédito\". Ignore completamente a coluna \"Débito\" e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.).",
   hdi_residencial_4x: "Esta cotação usa SOMENTE 2 linhas — Valor à Vista e uma parcela de 4x — NÃO inclua a linha de 10x de jeito nenhum: deixe parcela_10x_label e parcela_10x_valor como null. Este documento NÃO tem coluna \"Boleto\" — ele tem \"Débito\", \"Carnê\" e \"Cartão de Crédito\". Use a coluna \"Carnê\" para a linha de 4x, rotulada \"4x no Carnê\" (não \"Boleto\"). Ignore completamente a coluna \"Débito\", a coluna \"Cartão de Crédito\" inteira, e as variantes de data (\"1ª no Ato\", \"1ª a 30 dias\", \"Melhor Data\"). valor_a_vista é o valor da linha \"1x\" (que já inclui o I.O.F.), não o \"Prêmio Líquido Total\" isolado (que ainda não inclui I.O.F.).",
   bradesco_residencial: "O padrão Pozza para Bradesco Residencial é: Valor à Vista + 4x no Boleto sem juros + 8x no Cartão de Crédito sem juros (não 10x — a Bradesco costuma limitar o cartão a 8 parcelas sem juros neste produto). Este documento pode trazer a tabela de parcelamento como \"CCB e/ou Carnê\" (colunas \"Com Entrada\"/\"Sem Entrada\", cada uma com Qtd. Parcelas / 1ª parcela / Demais parcelas / Prêmio total) e, quando o prêmio permitir, uma tabela separada de \"Cartão de Crédito\". Use sempre o lado \"Sem Entrada\" quando houver essa divisão. Procure a linha com \"Qtd. Parcelas\" = 4x na tabela de Boleto/Carnê para a linha 2 (rotulada \"4x no Boleto\", valor = \"Demais parcelas\" dessa linha), e a linha com \"Qtd. Parcelas\" = 8x na tabela de Cartão de Crédito para a linha 3 (rotulada \"8x no Cartão de Crédito\", valor = \"Demais parcelas\" dessa linha). Muitas cotações da Bradesco (principalmente as de prêmio baixo) só oferecem a opção \"1x\" — nesse caso NÃO existem linhas de 4x nem 8x: deixe parcela_4x_valor e parcela_10x_valor como null, mesmo que isso signifique não preencher nenhuma parcela. NUNCA invente ou calcule uma parcela de 4x/8x dividindo o valor à vista. valor_a_vista é o \"Prêmio total\" da seção \"Demonstrativo do Prêmio\" (que já inclui o IOF)."
@@ -1152,7 +1174,39 @@ function preencherPreviewResidencial(d) {
     tblParc.appendChild(tr);
   });
 
-  renderFranquiasTabela('rFranquias', d.franquias);
+  $('pageRootResidencial').classList.toggle('multi-item', Array.isArray(d.itens) && d.itens.length > 1);
+  if (Array.isArray(d.itens) && d.itens.length) {
+    // Vários itens com coberturas diferentes: sub-título por item
+    tblCob.innerHTML = '';
+    d.itens.forEach((it, idx) => {
+      if (idx > 0) { const gap = document.createElement('tr'); gap.className = 'res-item-gap'; gap.innerHTML = '<td colspan="2"></td>'; tblCob.appendChild(gap); }
+      const th = document.createElement('tr'); th.className = 'res-item-head';
+      th.innerHTML = '<td colspan="2" contenteditable="true">' + escHtml(it.titulo || '') + '</td>';
+      tblCob.appendChild(th);
+      (it.coberturas || []).forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td contenteditable="true">' + (c.nome || '') + '</td><td contenteditable="true">' + (c.valor || '') + '</td>';
+        tblCob.appendChild(tr);
+      });
+    });
+    // Franquias: uma única tabela para todos os itens (sem repetir as iguais)
+    const vistos = {}, unicas = [];
+    const porCob = {};
+    d.itens.forEach(it => (it.franquias || []).forEach(f => {
+      const k = String(f.cobertura || '').trim().toLowerCase();
+      (porCob[k] = porCob[k] || new Set()).add((f.percentual || '') + '|' + (f.minimo || f.franquia || ''));
+    }));
+    d.itens.forEach((it, i) => (it.franquias || []).forEach(f => {
+      const k = String(f.cobertura || '').trim().toLowerCase();
+      const conflito = porCob[k].size > 1;
+      const chave = k + '|' + (f.percentual || '') + '|' + (f.minimo || f.franquia || '') + (conflito ? '|' + i : '');
+      if (vistos[chave]) return; vistos[chave] = true;
+      unicas.push(Object.assign({}, f, conflito ? { cobertura: f.cobertura + ' (Item ' + (i + 1) + ')' } : {}));
+    }));
+    renderFranquiasTabela('rFranquias', unicas);
+  } else {
+    renderFranquiasTabela('rFranquias', d.franquias);
+  }
 
   ajustarEspacamentoPagina('pageRootResidencial');
 }
