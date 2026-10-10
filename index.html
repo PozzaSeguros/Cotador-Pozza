@@ -259,6 +259,9 @@
 
     <div class="field" id="fieldInsurerAuto">
       <label>Seguradora</label>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:600;margin:0 0 8px 0;cursor:pointer;">
+        <input type="checkbox" id="chkTerceiros" style="width:auto;margin:0;"> Somente contra terceiros (sem Casco/FIPE e sem franquia)
+      </label>
       <select id="insurer">
         <option value="mapfre_manual">MAPFRE (cotação manual)</option>
         <option value="mapfre_sistema">MAPFRE (sistema oficial)</option>
@@ -357,10 +360,10 @@
           <div class="content">
             <div class="veiculo-box" contenteditable="true" id="fVeiculo">MARCA &nbsp;&bull;&nbsp; MODELO &nbsp;&bull;&nbsp; AAAA/AAAA</div>
 
-            <h3 class="secao">Coberturas</h3>
+            <h3 class="secao" id="hCoberturas" style="display:flex;justify-content:space-between;align-items:baseline;">Coberturas<span id="tagTerceiros" style="display:none;">Somente contra terceiros</span></h3>
             <table class="cob" id="tblCoberturas"></table>
 
-            <div class="franquia-box">
+            <div class="franquia-box" id="franquiaBox">
               <span class="lbl" contenteditable="true" id="fFranquiaLabel">Franquia Reduzida</span>
               <span class="val" contenteditable="true" id="fFranquiaValor">R$ 0,00</span>
             </div>
@@ -584,6 +587,15 @@ __PAYMENT_RULE__
 AVISO CRÍTICO SOBRE "condicoes_pagamento": o array deve conter EXATAMENTE o número de linhas indicado na regra acima (incluindo a linha de Valor à Vista) — nunca mais, nunca menos. NÃO copie a tabela de parcelamento inteira do documento (que pode ter 10, 11 ou 12 opções). Ignore completamente todas as parcelas que não foram especificadas na regra. A linha de "Valor à Vista" (a primeira, com destaque:true) NUNCA deve receber "sem_juros":true — esse campo é só para as parcelas.
 
 Devolva SOMENTE o JSON, nada mais.`;
+
+
+const TERCEIROS_RULE = `
+MODO SOMENTE CONTRA TERCEIROS (esta regra SUBSTITUI qualquer regra anterior que conflite, inclusive as regras 1, 3, 3b, 3c e 7):
+- Esta cotação NÃO tem Casco nem franquia. NÃO inclua a linha de Casco / FIPE em "coberturas" e devolva "franquia_valor": "" (string vazia). NUNCA invente franquia.
+- "coberturas" deve conter APENAS as coberturas de terceiros presentes no documento, mostrando sempre o LMI/capital (nunca o prêmio), nesta ordem e com estes nomes quando existirem: "Danos Materiais a Terceiros" (RCF-V Danos Materiais), "Danos Corporais a Terceiros" (RCF-V Danos Corporais), "Danos Morais e Estéticos", "Acidentes Pessoais Por Passageiros Morte" e "Acidentes Pessoais Por Passageiros Invalidez" (ou uma única "Acidentes Pessoais Por Passageiros"), "Custos de Defesa Auto". Nenhum item com "destaque": true. Não inclua coberturas "Não contratado".
+- Em "observacoes" gere SOMENTE UMA observação: o guincho / assistência 24h (ex: "Assistência 24h com guincho de **500 km**"), citando o km em destaque com **dois asteriscos** e mencionando a palavra "guincho". NÃO inclua Carta Verde, benefícios, carro reserva, vidros nem nenhuma outra observação. Se o documento não tiver assistência/guincho contratada, devolva "observacoes": [].
+- As regras de pagamento continuam valendo normalmente.
+`;
 
 const PAYMENT_RULES = {
   mapfre_manual: "Este documento já vem com a seção 'Condições de Pagamento' escrita manualmente — copie os valores e a marcação sem_juros exatamente como estiverem no texto original, sem recalcular nada.",
@@ -1021,6 +1033,7 @@ async function callClaude(userContent) {
   if (!apiKey) throw new Error('Cole sua chave de API da Anthropic antes de continuar.');
   const insurerKey = $('insurer').value;
   const systemPrompt = SYSTEM_PROMPT.replace('__PAYMENT_RULE__', PAYMENT_RULES[insurerKey]);
+  const systemPromptFinal = ($('chkTerceiros') && $('chkTerceiros').checked) ? systemPrompt + '\n' + TERCEIROS_RULE : systemPrompt;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -1029,7 +1042,7 @@ async function callClaude(userContent) {
       'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-5', max_tokens: 4096, system: systemPrompt,
+      model: 'claude-sonnet-5', max_tokens: 4096, system: systemPromptFinal,
       messages: [{ role: 'user', content: userContent }]
     })
   });
@@ -1317,6 +1330,11 @@ function ajustarMarcaDaguaAuto() {
   img.style.width = largura + 'px';
   img.style.maxWidth = 'none';
 }
+$('chkTerceiros').addEventListener('change', () => {
+  $('franquiaBox').style.display = $('chkTerceiros').checked ? 'none' : '';
+  $('tagTerceiros').style.display = $('chkTerceiros').checked ? '' : 'none';
+  ajustarMarcaDaguaAuto();
+});
 $('pageRoot').addEventListener('input', ajustarMarcaDaguaAuto);
 window.addEventListener('beforeprint', () => {
   if ($('tipoSeguro').value === 'auto') ajustarMarcaDaguaAuto();
@@ -1327,7 +1345,11 @@ function preencherPreview(d) {
   $('fVigIni').textContent = d.vigencia_inicio || '';
   $('fVigFim').textContent = d.vigencia_fim || '';
   $('fVeiculo').textContent = (d.veiculo || '').toUpperCase() + (d.veiculo_ano ? '  •  ' + d.veiculo_ano : '');
-  $('fFranquiaValor').textContent = d.franquia_valor || 'R$ 0,00';
+  const terc = $('chkTerceiros') && $('chkTerceiros').checked;
+  $('franquiaBox').style.display = terc ? 'none' : '';
+  $('tagTerceiros').style.display = terc ? '' : 'none';
+  if (!terc) $('fFranquiaValor').textContent = d.franquia_valor || 'R$ 0,00';
+  if (terc) (d.coberturas = (d.coberturas || []).filter(c => !/casco/i.test(c.nome || '')));
 
   const tblCob = $('tblCoberturas');
   tblCob.innerHTML = '';
