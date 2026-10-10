@@ -231,6 +231,19 @@
     .app { grid-template-columns: 1fr; }
     .panel { border-right: none; border-bottom: 1px solid #ddd; }
   }
+
+  /* ===== Cabeçalho leve em TODAS as cotações (sem faixa sólida — economiza tinta) ===== */
+  .header { background: transparent; color: var(--texto); padding: 32px 50px 0 50px; }
+  .header::after { content: ""; display: block; height: 4px; background: var(--bordo); margin-top: 14px; }
+  .header .nome { color: var(--bordo); font-size: 21px; text-transform: uppercase; line-height: 1.2; }
+  .header .vig { color: #777; opacity: 1; margin-top: 8px; font-size: 12px; }
+  .header .vig span[contenteditable] { color: var(--texto); font-weight: bold; border-bottom: 1px dotted #bbb; }
+  .header .titulo { color: var(--bordo); font-size: 10.5px; font-weight: bold; letter-spacing: .8px; margin-top: 8px; opacity: 1; }
+  .header .logo-header { height: auto; width: 150px; }
+  .res-header-band { background: transparent; margin: 0 50px; padding: 28px 0 12px 0; border-bottom: 4px solid var(--bordo); }
+  .res-titulo { color: var(--bordo); }
+  .res-logo { width: 140px; }
+  .page.compact .res-header-band { padding: 14px 0 10px 0; }
 </style>
 </head>
 <body>
@@ -834,6 +847,9 @@ updateInsurerHintEmpresarial();
 
 // O logo e a marca d'água do empresarial reaproveitam a imagem já embutida (logo bordô com fundo transparente).
 $('imgLogoEmp').src = $('imgWatermark').src;
+$('imgLogoHeader').src = $('imgWatermark').src;
+$('imgLogoResidencial').src = $('imgWatermark').src;
+$('imgLogoCondominio').src = $('imgWatermark').src;
 $('imgWatermarkEmp').src = $('imgWatermark').src;
 
 async function callClaudeEmpresarial(userContent) {
