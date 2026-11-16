@@ -629,7 +629,7 @@ MODO SOMENTE CONTRA TERCEIROS (esta regra SUBSTITUI qualquer regra anterior que 
 const PAYMENT_RULES = {
   mapfre_manual: "Este documento já vem com a seção 'Condições de Pagamento' escrita manualmente — copie os valores e a marcação sem_juros exatamente como estiverem no texto original, sem recalcular nada.",
   mapfre_sistema: "A tabela de parcelamento tem 4 colunas lado a lado, cada uma com seu próprio cabeçalho e sua própria lista de 1x a 10x/12x: 'Boleto', 'Débito em Conta', 'Débito c/ 1º em Boleto' e 'Cartão de Crédito'. Extraia EXATAMENTE 4 linhas, cada uma de uma coluna diferente — NUNCA pegue duas parcelas seguidas da mesma coluna: (1) Valor à Vista = Prêmio Total; (2) a linha '2x' DENTRO DA COLUNA 'Boleto', rotulada '2x no Carnê' (marque sem_juros só se essa linha específica disser 'Sem Juros'); (3) a linha '6x' DENTRO DA COLUNA 'Débito em Conta' (não da coluna Boleto), rotulada '6x no Débito em Conta'; (4) a linha '10x' DENTRO DA COLUNA 'Cartão de Crédito' (não da coluna Boleto), rotulada '10x no Cartão de Crédito', usando a coluna de cartão genérica (não a com cashback/desconto exclusivo de cartão co-branded). Antes de responder, confira: a partir da parcela 6x, NENHUM valor pode ter sido copiado da coluna 'Boleto' — se o valor da linha 6x ou 10x tiver 'Com Juros', você pegou da coluna errada.",
-  porto_azul_mitsui_itau: "Extraia da tabela de parcelamento: (1) Valor à Vista = o PRÊMIO TOTAL do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto', mesmo que ele apareça destacado no documento); (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — combine em uma linha só se os três meios tiverem o mesmo valor de parcela em 4x; se forem diferentes, crie linhas separadas; (3) '10x no Cartão de Crédito' sem juros. IMPORTANTE: se a tabela de Débito em Conta tiver juros a partir de alguma parcela (verifique a palavra 'juros' ao lado de cada valor), NÃO combine — nesse caso use só '4x no Cartão de Crédito' sem juros como linha (2).",
+  porto_azul_mitsui_itau: "Extraia EXATAMENTE 3 linhas: (1) Valor à Vista = o PRÊMIO TOTAL / 'Valor total' do orçamento (sem nenhum desconto promocional/à vista aplicado — NUNCA use o valor de 'boleto à vista com desconto' nem o 1x das tabelas 'PORTO BANK', mesmo que apareçam destacados). (2) uma linha '4x no Carnê / Débito em Conta / Cartão de Crédito' sem juros — pegue o valor da coluna cujo CABEÇALHO é '4x' nas tabelas 'CARTÃO DE CRÉDITO - DEMAIS BANDEIRAS', 'DÉBITO C. CORRENTE' e 'BOLETO / CARNÊ'; combine em uma linha só se as três tiverem o mesmo valor em 4x sem juros; se forem diferentes, crie linhas separadas; se o Débito ou o Carnê tiverem juros em 4x (verifique a palavra 'juros' ao lado do valor), use só '4x no Cartão de Crédito'. (3) '10x no Cartão de Crédito' sem juros — pegue o valor da coluna cujo CABEÇALHO é '10x' na tabela 'CARTÃO DE CRÉDITO - DEMAIS BANDEIRAS' (ou 'PORTO BANK SEM DESCONTO', que tem o mesmo valor). NUNCA use a tabela 'PORTO BANK (AQUISIÇÃO)' / com desconto. ATENÇÃO: as tabelas têm muitas colunas (1x a 10x/12x) e às vezes a coluna 1x vem com '-'; NÃO conte posições — localize o valor pelo cabeçalho da coluna. CONFERÊNCIA OBRIGATÓRIA: parcela × número de parcelas deve dar o Valor total (ex.: total 1.428,56 → 4x = 357,14 e 10x = 142,86). Se a conta não fechar, você pegou a coluna errada (ex.: 9x em vez de 10x) — corrija antes de responder.",
   hdi_yelum: "Extraia EXATAMENTE 5 linhas, nesta ordem e com estes rótulos exatos: (1) 'Valor do Seguro à Vista' = Prêmio Total / Total à Vista (destaque:true, sem o campo sem_juros); (2) '6x no Débito em Conta ou Cartão de Crédito' com sem_juros:true; (3) '10x no Cartão de Crédito' com sem_juros:true; (4) '4x no Carnê' SEM o campo sem_juros; (5) '7x no Carnê' SEM o campo sem_juros. A tabela tem colunas lado a lado (Carnê | Débito C/C | Cartão de Crédito | QR Code PIX): a linha de 6x vem da coluna 'Débito C/C'; a linha de 10x vem da coluna 'Cartão de Crédito'; as linhas de 4x e 7x vêm da coluna 'Carnê'. NUNCA use a coluna 'QR Code PIX'. Conversão de notação: na Yelum/Aliro a tabela usa '1 + N' (entrada + N parcelas), então 6x = linha '1 + 5', 10x = linha '1 + 9', 4x = linha '1 + 3', 7x = linha '1 + 6'. Na HDI a tabela numera direto (1x, 2x, 3x...), então use as linhas 6x, 10x, 4x e 7x. Nos rótulos use SEMPRE o total de parcelas (6x, 10x, 4x, 7x), NUNCA a notação '1 + N'.",
   bradesco: "Extraia da tabela de parcelamento: (1) Valor à Vista = TOTAL A PAGAR; (2) '4x no Carnê' sem juros; (3) '6x no Débito em Conta' sem juros; (4) '10x no Cartão de Crédito' sem juros — use a coluna genérica 'Cartão de Crédito' (não a coluna 'Cartão de Crédito Bradesco' co-branded, que costuma ter valor diferente).",
   allianz: "Extraia da tabela de parcelamento: (1) Valor à Vista = Preço Total; (2) '6x no Débito em Conta' sem juros; (3) '10x no Cartão de Crédito' sem juros.",
@@ -913,6 +913,37 @@ function parseMoedaBR(v) {
 }
 function fmtMoedaBR(n) {
   return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+// Conferência matemática das parcelas SEM JUROS: parcela × N deve dar o valor à vista.
+// Se a IA pegou a coluna errada (ex.: 9x no lugar de 10x), procura no texto do PDF
+// o valor correto (total ÷ N) e corrige. Linhas com juros não são tocadas.
+function validarParcelas(dados, textoPdf, seguradora) {
+  try {
+    if (!dados || !Array.isArray(dados.condicoes_pagamento) || seguradora === 'mapfre_manual') return dados;
+    const linhas = dados.condicoes_pagamento;
+    const base = linhas.find(l => l && l.destaque) || linhas[0];
+    const total = parseMoedaBR(base && base.valor);
+    if (!isFinite(total) || total <= 0) return dados;
+    const valoresTexto = (String(textoPdf || '').match(/\d{1,3}(?:\.\d{3})*,\d{2}/g) || []).map(parseMoedaBR).filter(isFinite);
+    const TOL = 0.05;
+    linhas.forEach(l => {
+      if (!l || l === base || !l.sem_juros) return;
+      const m = String(l.label || '').match(/(\d+)\s*x/i);
+      if (!m) return;
+      const n = parseInt(m[1], 10);
+      if (!(n >= 2)) return;
+      const esperado = total / n;
+      const atual = parseMoedaBR(l.valor);
+      if (isFinite(atual) && Math.abs(atual - esperado) <= TOL) return;
+      let melhor = null;
+      valoresTexto.forEach(v => { const d = Math.abs(v - esperado); if (d <= TOL && (melhor === null || d < Math.abs(melhor - esperado))) melhor = v; });
+      if (melhor !== null) {
+        console.warn('[Pozza] Parcela corrigida:', l.label, l.valor, '→', fmtMoedaBR(melhor));
+        l.valor = fmtMoedaBR(melhor);
+      }
+    });
+  } catch (e) { console.error('validarParcelas', e); }
+  return dados;
 }
 function escHtml(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
@@ -1369,6 +1400,7 @@ $('extractBtn').addEventListener('click', async () => {
       setStatus('Enviando imagens para a IA...', 'info');
     }
     const dados = await callClaude(userContent);
+    validarParcelas(dados, text, $('insurer') ? $('insurer').value : '');
     preencherPreview(dados);
     setStatus('Dados extraídos! Revise os campos ao lado antes de baixar o PDF.', 'ok');
   } catch (err) {
